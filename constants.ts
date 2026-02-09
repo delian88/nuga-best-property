@@ -13,7 +13,7 @@ export const MOCK_PROPERTIES: Property[] = [
     beds: 5,
     baths: 5,
     toilets: 6,
-    imageUrl: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
     featured: true,
     postedDate: '1 hour ago'
   },

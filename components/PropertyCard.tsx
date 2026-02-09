@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Property } from '../types';
 
 interface PropertyCardProps {
@@ -7,21 +7,30 @@ interface PropertyCardProps {
   className?: string;
 }
 
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80';
+
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, className = "" }) => {
+  const [imgSrc, setImgSrc] = useState(property.imageUrl);
+
+  const handleError = () => {
+    setImgSrc(FALLBACK_IMAGE);
+  };
+
   return (
     <div className={`bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer ${className}`}>
       {/* Image Container */}
-      <div className="relative h-56 overflow-hidden">
+      <div className="relative h-56 overflow-hidden bg-gray-100">
         <img 
-          src={property.imageUrl} 
+          src={imgSrc} 
           alt={property.title} 
+          onError={handleError}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col space-y-2">
-          <span className="bg-fuchsia-700/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
+          <span className="bg-emerald-600/90 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
             {property.type}
           </span>
           {property.featured && (
@@ -33,7 +42,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, className = "" })
         </div>
 
         <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-           <button className="w-full bg-white text-fuchsia-900 font-bold py-2 rounded-lg text-sm shadow-xl">
+           <button className="w-full bg-white text-emerald-900 font-black py-2.5 rounded-xl text-xs uppercase tracking-widest shadow-2xl">
              View Details
            </button>
         </div>
@@ -42,18 +51,18 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, className = "" })
       {/* Content */}
       <div className="p-5">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-bold text-fuchsia-900">
+          <h3 className="text-xl font-black text-emerald-600 tracking-tight">
             {property.currency}{property.price.toLocaleString()}
             {property.type === 'To Rent' && <span className="text-sm font-normal text-gray-400"> /yr</span>}
             {property.type === 'Short Let' && <span className="text-sm font-normal text-gray-400"> /night</span>}
           </h3>
         </div>
         
-        <h4 className="text-base font-semibold text-gray-800 line-clamp-1 mb-2 group-hover:text-emerald-700 transition-colors">
+        <h4 className="text-base font-bold text-gray-800 line-clamp-1 mb-2 group-hover:text-emerald-500 transition-colors uppercase tracking-tight">
           {property.title}
         </h4>
         
-        <p className="text-gray-500 text-sm flex items-center mb-4">
+        <p className="text-gray-500 text-xs font-bold uppercase tracking-widest flex items-center mb-4">
           <svg className="h-4 w-4 mr-1.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -61,20 +70,20 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, className = "" })
           {property.location}
         </p>
 
-        <div className="flex items-center space-x-6 border-t border-gray-50 pt-4 text-gray-600 text-xs">
+        <div className="flex items-center space-x-4 border-t border-gray-50 pt-4 text-gray-600 text-[10px] font-black uppercase tracking-[0.1em]">
           {property.beds && (
-            <div className="flex items-center bg-gray-50 px-2 py-1 rounded">
-              <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-              <span>{property.beds} Beds</span>
+            <div className="flex items-center bg-gray-50 px-2 py-1.5 rounded-lg">
+              <svg className="w-3.5 h-3.5 mr-1 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              <span>{property.beds} Bds</span>
             </div>
           )}
           {property.baths && (
-            <div className="flex items-center bg-gray-50 px-2 py-1 rounded">
-              <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-              <span>{property.baths} Baths</span>
+            <div className="flex items-center bg-gray-50 px-2 py-1.5 rounded-lg">
+              <svg className="w-3.5 h-3.5 mr-1 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>{property.baths} Bths</span>
             </div>
           )}
-          <div className="flex-1 text-right text-gray-400 italic">
+          <div className="flex-1 text-right text-gray-400 font-bold italic normal-case">
             {property.postedDate}
           </div>
         </div>
