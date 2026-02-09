@@ -1,58 +1,77 @@
 
 import React, { useState } from 'react';
 
+export type ViewType = 'home' | 'for-sale' | 'for-rent' | 'short-let' | 'companies' | 'resources' | 'contact';
+
 interface HeaderProps {
-  onNavigate: (view: 'home' | 'for-sale') => void;
-  currentView: string;
+  onNavigate: (view: ViewType) => void;
+  currentView: ViewType;
 }
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const navLinks: { label: string; view: ViewType }[] = [
+    { label: 'For Sale', view: 'for-sale' },
+    { label: 'For Rent', view: 'for-rent' },
+    { label: 'Short Let', view: 'short-let' },
+    { label: 'Companies', view: 'companies' },
+    { label: 'Resources', view: 'resources' },
+    { label: 'Contact', view: 'contact' },
+  ];
+
+  const handleNav = (view: ViewType) => {
+    onNavigate(view);
+    setIsMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div 
-            className="flex-shrink-0 flex items-center cursor-pointer" 
-            onClick={() => onNavigate('home')}
+            className="flex-shrink-0 flex items-center cursor-pointer group" 
+            onClick={() => handleNav('home')}
           >
-            <span className="text-2xl font-bold tracking-tighter shining-text">
+            <span className="text-2xl font-black tracking-tighter shining-text transition-transform group-hover:scale-105">
               NUGA BEST <span className="text-emerald-600">PROPERTIES</span>
             </span>
           </div>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex space-x-8">
-            <button 
-              onClick={() => onNavigate('for-sale')}
-              className={`px-3 py-2 text-sm font-medium transition-colors ${
-                currentView === 'for-sale' ? 'text-fuchsia-700' : 'text-gray-700 hover:text-fuchsia-700'
-              }`}
-            >
-              For Sale
-            </button>
-            <a href="#" className="text-gray-700 hover:text-fuchsia-700 px-3 py-2 text-sm font-medium transition-colors">For Rent</a>
-            <a href="#" className="text-gray-700 hover:text-fuchsia-700 px-3 py-2 text-sm font-medium transition-colors">Short Let</a>
-            <a href="#" className="text-gray-700 hover:text-fuchsia-700 px-3 py-2 text-sm font-medium transition-colors">Companies</a>
-            <a href="#" className="text-gray-700 hover:text-fuchsia-700 px-3 py-2 text-sm font-medium transition-colors">Resources</a>
+          <nav className="hidden xl:flex space-x-6">
+            {navLinks.map((link) => (
+              <button
+                key={link.view}
+                onClick={() => handleNav(link.view)}
+                className={`px-3 py-2 text-sm font-bold transition-all relative ${
+                  currentView === link.view ? 'text-emerald-600' : 'text-gray-600 hover:text-emerald-600'
+                }`}
+              >
+                {link.label}
+                {currentView === link.view && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-600 rounded-full"></span>
+                )}
+              </button>
+            ))}
           </nav>
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="text-gray-600 hover:text-fuchsia-700 text-sm font-medium">Login</button>
-            <button className="bg-fuchsia-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-fuchsia-800 transition-colors shadow-sm relative overflow-hidden group">
-              <span className="relative z-10">Post a Property</span>
+            <button className="text-gray-600 hover:text-emerald-600 text-sm font-bold px-4 py-2 transition-colors">Login</button>
+            <button className="bg-emerald-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-lg hover:shadow-emerald-200 relative overflow-hidden group">
+              <span className="relative z-10">Post Property</span>
               <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>
             </button>
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="xl:hidden flex items-center">
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="text-gray-500 hover:text-emerald-600 focus:outline-none p-2 rounded-lg bg-gray-50 transition-colors"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isMenuOpen ? (
@@ -68,19 +87,24 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
 
       {/* Mobile Nav */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 pt-2 pb-6 space-y-1">
-          <button 
-            onClick={() => { onNavigate('for-sale'); setIsMenuOpen(false); }}
-            className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700"
-          >
-            For Sale
-          </button>
-          <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700">For Rent</a>
-          <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700">Short Let</a>
-          <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700">Login</a>
-          <button className="w-full mt-2 bg-fuchsia-700 text-white px-4 py-2 rounded-md font-medium">
-            Post a Property
-          </button>
+        <div className="xl:hidden bg-white border-t border-gray-100 px-4 pt-4 pb-8 space-y-2 animate__animated animate__fadeInDown">
+          {navLinks.map((link) => (
+            <button 
+              key={link.view}
+              onClick={() => handleNav(link.view)}
+              className={`block w-full text-left px-4 py-3 text-base font-bold rounded-xl transition-colors ${
+                currentView === link.view ? 'bg-emerald-50 text-emerald-700' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {link.label}
+            </button>
+          ))}
+          <div className="pt-4 flex flex-col space-y-3">
+            <button className="w-full text-center py-3 text-gray-700 font-bold border border-gray-200 rounded-xl">Login</button>
+            <button className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-200">
+              Post a Property
+            </button>
+          </div>
         </div>
       )}
     </header>
