@@ -62,8 +62,8 @@ const Hero: React.FC = () => {
           <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 border border-emerald-400/30">
             Trusted Real Estate Partner
           </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight drop-shadow-2xl font-serif">
-            Find Your <span className="text-emerald-400">Dream Home</span> <br className="hidden sm:block"/> with Nuga Best
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight drop-shadow-2xl font-serif shining-text">
+            Find Your Dream Home <br className="hidden sm:block"/> with Nuga Best
           </h1>
           <p className="text-base sm:text-xl text-fuchsia-50/90 mb-8 sm:mb-12 max-w-2xl mx-auto font-light leading-relaxed drop-shadow-md">
             The most reliable portal for verified Houses, Lands, and Commercial spaces across all 36 states in Nigeria.
