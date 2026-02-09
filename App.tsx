@@ -5,9 +5,120 @@ import Hero from './components/Hero';
 import PropertyCard from './components/PropertyCard';
 import AIChatBot from './components/AIChatBot';
 import { MOCK_PROPERTIES } from './constants';
+import { Property } from './types';
+
+const PropertyModal: React.FC<{ property: Property; onClose: () => void }> = ({ property, onClose }) => {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate__animated animate__fadeIn">
+      <div className="bg-white w-full max-w-5xl rounded-[2.5rem] overflow-hidden shadow-2xl relative animate__animated animate__zoomIn border border-white/20">
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 z-[110] w-12 h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-emerald-600 hover:text-white transition-all group"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        
+        <div className="flex flex-col lg:flex-row h-full max-h-[90vh] overflow-y-auto lg:overflow-hidden">
+          {/* Image Section */}
+          <div className="lg:w-1/2 h-80 lg:h-auto overflow-hidden relative group">
+            <img 
+              src={property.imageUrl} 
+              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
+              alt={property.title} 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+            <div className="absolute bottom-10 left-10 text-white">
+              <span className="bg-emerald-600 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-xl mb-4 inline-block">
+                {property.type}
+              </span>
+              <h2 className="text-4xl font-black uppercase tracking-tighter drop-shadow-lg">{property.category}</h2>
+            </div>
+          </div>
+
+          {/* Details Section */}
+          <div className="lg:w-1/2 p-10 lg:p-16 overflow-y-auto bg-gray-50 flex flex-col custom-scrollbar">
+            <div className="mb-8">
+              <h2 className="text-3xl font-black text-gray-900 leading-tight mb-4 uppercase tracking-tighter shining-text inline-block">{property.title}</h2>
+              <div className="flex items-baseline space-x-2 mb-6">
+                <span className="text-emerald-600 text-4xl font-black">{property.currency}{property.price.toLocaleString()}</span>
+                {property.type === 'To Rent' && <span className="text-gray-400 font-bold">/ Year</span>}
+                {property.type === 'Short Let' && <span className="text-gray-400 font-bold">/ Night</span>}
+              </div>
+              
+              <div className="flex items-center text-gray-500 text-sm font-bold uppercase tracking-widest bg-white p-4 rounded-2xl border border-gray-100 shadow-sm inline-flex">
+                <svg className="w-5 h-5 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                {property.location}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+              {property.beds && (
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-emerald-50 text-center hover:border-emerald-200 transition-colors">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Bedrooms</p>
+                  <p className="text-2xl font-black text-emerald-600">{property.beds}</p>
+                </div>
+              )}
+              {property.baths && (
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-emerald-50 text-center hover:border-emerald-200 transition-colors">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Baths</p>
+                  <p className="text-2xl font-black text-emerald-600">{property.baths}</p>
+                </div>
+              )}
+              {property.toilets && (
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-emerald-50 text-center hover:border-emerald-200 transition-colors">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Toilets</p>
+                  <p className="text-2xl font-black text-emerald-600">{property.toilets}</p>
+                </div>
+              )}
+              {property.sqm && (
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-emerald-50 text-center hover:border-emerald-200 transition-colors">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Area</p>
+                  <p className="text-xl font-black text-emerald-600">{property.sqm}m²</p>
+                </div>
+              )}
+            </div>
+
+            <div className="mb-10">
+              <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-5 border-b-2 border-emerald-100 pb-3 flex items-center">
+                <svg className="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>
+                About This Property
+              </h4>
+              <p className="text-gray-500 text-base leading-relaxed italic">{property.description || "No detailed description available for this property. Please contact our agents for complete documentation and viewing arrangements."}</p>
+            </div>
+
+            {property.interiorFeatures && property.interiorFeatures.length > 0 && (
+              <div className="mb-10">
+                <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-5 border-b-2 border-emerald-100 pb-3 flex items-center">
+                   <svg className="w-4 h-4 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                   Interior Features
+                </h4>
+                <div className="flex flex-wrap gap-3">
+                  {property.interiorFeatures.map((f, i) => (
+                    <span key={i} className="px-4 py-2 bg-emerald-50 text-emerald-700 text-[10px] font-black rounded-xl uppercase tracking-widest border border-emerald-100">{f}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-auto pt-10 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <button className="bg-emerald-600 text-white font-black py-5 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-800/20 uppercase tracking-widest text-xs transition-all active:scale-95 flex items-center justify-center">
+                 Inquire via Email
+               </button>
+               <button className="border-2 border-emerald-600 text-emerald-600 font-black py-5 rounded-2xl hover:bg-emerald-600 hover:text-white uppercase tracking-widest text-xs transition-all active:scale-95 flex items-center justify-center">
+                 WhatsApp Agent
+               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('home');
+  const [locationFilter, setLocationFilter] = useState<string | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
   useEffect(() => {
     const observerOptions = { threshold: 0.1 };
@@ -23,21 +134,50 @@ const App: React.FC = () => {
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     return () => observer.disconnect();
-  }, [currentView]);
+  }, [currentView, locationFilter]);
+
+  const handleLocationClick = (locName: string) => {
+    const parts = locName.split(', ');
+    const state = parts.pop() || locName;
+    const city = parts[0] || state;
+    
+    setLocationFilter(city);
+    setCurrentView('for-sale');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getFilteredProperties = (typeFilter: string | null = null) => {
+    let props = MOCK_PROPERTIES;
+    if (typeFilter) {
+      props = props.filter(p => p.type === typeFilter);
+    }
+    if (locationFilter) {
+      props = props.filter(p => p.location.toLowerCase().includes(locationFilter.toLowerCase()));
+    }
+    return props;
+  };
 
   const featuredProperties = MOCK_PROPERTIES.filter(p => p.featured);
-  const forSaleProperties = MOCK_PROPERTIES.filter(p => p.type === 'For Sale');
-  const forRentProperties = MOCK_PROPERTIES.filter(p => p.type === 'To Rent');
-  const shortLetProperties = MOCK_PROPERTIES.filter(p => p.type === 'Short Let');
 
-  const PageHeader = ({ title, description }: { title: string; description: string }) => (
-    <div className="mb-12 border-b border-gray-100 pb-10">
-      <h1 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-4 shining-text uppercase tracking-tight">
-        {title}
-      </h1>
-      <p className="text-gray-500 text-lg max-w-3xl leading-relaxed">
-        {description}
-      </p>
+  const PageHeader = ({ title, description, showClear = false }: { title: string; description: string; showClear?: boolean }) => (
+    <div className="mb-12 border-b border-gray-100 pb-10 flex flex-col md:flex-row justify-between items-end">
+      <div>
+        <h1 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-4 shining-text uppercase tracking-tight">
+          {title}
+        </h1>
+        <p className="text-gray-500 text-lg max-w-3xl leading-relaxed">
+          {description}
+        </p>
+      </div>
+      {showClear && locationFilter && (
+        <button 
+          onClick={() => setLocationFilter(null)}
+          className="mt-6 md:mt-0 text-xs font-black text-emerald-600 border-b-2 border-emerald-600 uppercase tracking-widest hover:text-emerald-800 hover:border-emerald-800 transition-all flex items-center"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+          Clear Location: {locationFilter}
+        </button>
+      )}
     </div>
   );
 
@@ -46,145 +186,87 @@ const App: React.FC = () => {
       <Hero />
 
       {/* Browse by Neighborhoods */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 reveal">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 reveal">
         <div className="text-center mb-16">
-          <span className="text-emerald-600 font-bold text-sm tracking-widest uppercase mb-2 block">Prime Locations</span>
-          <h2 className="text-3xl sm:text-4xl font-black text-gray-900 font-serif mb-4 shining-text uppercase tracking-tight">Browse by Neighborhood</h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">Explore the most sought-after districts across the federation with our curated property collections.</p>
+          <span className="text-emerald-600 font-black text-sm tracking-[0.3em] uppercase mb-4 block">Prime Neighborhoods</span>
+          <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-6 shining-text uppercase tracking-tight">Premium Locations</h2>
+          <p className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed">Explore verified high-end real estate opportunities tailored for the discerning investor.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { name: 'Ikoyi, Lagos', img: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb', count: '1.2k+ Properties' },
-            { name: 'Maitama, Abuja', img: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716', count: '850+ Properties' },
-            { name: 'Lekki Phase 1', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750', count: '2.4k+ Properties' },
-            { name: 'GRA, Port Harcourt', img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607', count: '420+ Properties' }
+            { name: 'Ikoyi, Lagos', img: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb', count: '1.2k+ Listings' },
+            { name: 'Maitama, Abuja', img: 'https://images.unsplash.com/photo-1582407947304-fd86f028f716', count: '850+ Listings' },
+            { name: 'Lekki Phase 1', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750', count: '2.4k+ Listings' },
+            { name: 'GRA, Port Harcourt', img: 'https://images.unsplash.com/photo-1449844908441-8829872d2607', count: '420+ Listings' }
           ].map((loc, i) => (
-            <div key={i} className="group relative h-72 rounded-3xl overflow-hidden cursor-pointer shadow-xl transition-transform hover:-translate-y-2">
-              <img src={`${loc.img}?auto=format&fit=crop&w=400&q=80`} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={loc.name} />
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/20 to-transparent"></div>
-              <div className="absolute bottom-6 left-6 text-white">
-                <h3 className="text-xl font-black uppercase tracking-tight mb-1">{loc.name}</h3>
-                <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest">{loc.count}</p>
+            <div 
+              key={i} 
+              onClick={() => handleLocationClick(loc.name)}
+              className="group relative h-[400px] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-2xl transition-all duration-700 hover:-translate-y-3"
+            >
+              <img src={`${loc.img}?auto=format&fit=crop&w=600&q=80`} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-125" alt={loc.name} />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/95 via-emerald-900/30 to-transparent"></div>
+              <div className="absolute bottom-10 left-10 right-10 text-white">
+                <h3 className="text-2xl font-black uppercase tracking-tight mb-2 group-hover:translate-x-2 transition-transform duration-500">{loc.name}</h3>
+                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest">{loc.count}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
+      {/* Why Choose Us */}
+      <section className="bg-emerald-950 py-24 text-white reveal overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div>
+              <span className="text-emerald-400 font-black uppercase tracking-widest text-sm mb-4 block">Our Excellence</span>
+              <h2 className="text-4xl sm:text-5xl font-black font-serif mb-8 leading-tight shining-text-white uppercase tracking-tighter">Setting the Standard <br/> in Luxury Real Estate</h2>
+              <div className="space-y-8">
+                {[
+                  { title: 'Verified Listings', desc: 'Every property undergoes a rigorous legal verification process.' },
+                  { title: 'Expert Advisory', desc: 'Our consultants provide deep market insights for maximum ROI.' },
+                  { title: 'Seamless Experience', desc: 'From viewing to closing, we handle the complexities for you.' }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start">
+                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mr-6 shrink-0 backdrop-blur-md">
+                      <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div>
+                      <h4 className="font-black uppercase tracking-widest text-sm mb-1">{item.title}</h4>
+                      <p className="text-gray-400 text-sm">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="relative">
+               <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80" className="rounded-[3rem] shadow-2xl relative z-10" alt="Consultancy" />
+               <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-emerald-600 rounded-full blur-[120px] opacity-20"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Listings Section */}
       <section className="bg-white py-24 border-y border-gray-100 reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-16">
             <div className="text-center md:text-left mb-6 md:mb-0">
-              <span className="text-emerald-600 font-bold text-sm tracking-widest uppercase mb-2 block">Our Finest Selection</span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 font-serif shining-text">Featured Premium Properties</h2>
-              <div className="h-1.5 w-24 bg-emerald-600 mt-4 rounded-full mx-auto md:mx-0"></div>
+              <span className="text-emerald-600 font-black text-sm tracking-[0.3em] uppercase mb-4 block">Hand-Picked Homes</span>
+              <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif shining-text uppercase tracking-tight">Featured Selections</h2>
+              <div className="h-2 w-24 bg-emerald-600 mt-6 rounded-full mx-auto md:mx-0"></div>
             </div>
             <button 
-              onClick={() => setCurrentView('for-sale')}
-              className="px-8 py-3 border-2 border-emerald-600 text-emerald-600 font-bold rounded-xl hover:bg-emerald-600 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm uppercase text-sm tracking-widest"
+              onClick={() => { setLocationFilter(null); setCurrentView('for-sale'); }}
+              className="px-10 py-4 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-800/20 uppercase text-xs tracking-[0.2em]"
             >
-              Browse All Sale Listings
+              Explore All Listings
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
             {featuredProperties.slice(0, 3).map(property => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="bg-emerald-950 py-24 text-white reveal shadow-2xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { val: '12,400+', label: 'Active Listings' },
-              { val: '8,200+', label: 'Properties Sold' },
-              { val: '5,100+', label: 'Happy Clients' },
-              { val: '24/7', label: 'Expert Support' }
-            ].map((stat, i) => (
-              <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <p className="text-4xl sm:text-5xl font-black mb-3 shining-text-white">{stat.val}</p>
-                <p className="text-emerald-400 text-xs sm:text-sm font-bold uppercase tracking-widest">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Us / Services Section */}
-      <section className="py-24 bg-gray-50 reveal">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div className="relative">
-              <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl">
-                <img 
-                  src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80" 
-                  className="w-full h-[600px] object-cover"
-                  alt="Professional Real Estate Consultation"
-                />
-              </div>
-              <div className="absolute -bottom-10 -left-10 bg-white p-10 rounded-[2.5rem] shadow-2xl hidden lg:block border border-emerald-50 max-w-[320px]">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white font-black">AI</div>
-                  <div>
-                    <h4 className="font-black text-gray-900 uppercase text-xs tracking-widest">Powered by AI</h4>
-                    <p className="text-[10px] text-gray-400">Smart Property Analytics</p>
-                  </div>
-                </div>
-                <p className="text-gray-500 text-xs leading-relaxed italic">"Our proprietary algorithm helps you find undervalued properties before they hit the mass market."</p>
-              </div>
-            </div>
-            <div>
-              <span className="text-emerald-600 font-bold uppercase tracking-widest text-sm mb-4 block">Unmatched Expertise</span>
-              <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-8 leading-tight shining-text uppercase tracking-tighter">Leading the future of <br/>Nigerian Real Estate.</h2>
-              <div className="space-y-8">
-                 {[
-                   { title: 'Verified Only', desc: 'Every title deed is cross-checked with state land bureaus for absolute security.', icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
-                   { title: 'Investment Optimized', desc: 'Our team provides detailed ROI projections for every commercial listing.', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
-                   { title: 'Global Standards', desc: 'Operating with international ethical standards in a local landscape.', icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
-                 ].map((item, i) => (
-                   <div key={i} className="flex items-start group">
-                     <div className="flex-shrink-0 w-14 h-14 bg-white rounded-2xl shadow-lg flex items-center justify-center text-emerald-600 mr-6 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
-                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon}/></svg>
-                     </div>
-                     <div>
-                       <h4 className="font-black text-gray-900 uppercase tracking-widest text-sm mb-2 group-hover:text-emerald-600 transition-colors">{item.title}</h4>
-                       <p className="text-gray-500 text-sm leading-relaxed max-w-md">{item.desc}</p>
-                     </div>
-                   </div>
-                 ))}
-              </div>
-              <button className="mt-12 bg-emerald-600 text-white px-10 py-4 rounded-2xl font-black hover:bg-emerald-700 shadow-2xl transition-all hover:scale-105 uppercase tracking-widest text-sm">Download Company Profile</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-24 bg-white reveal">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-             <h2 className="text-3xl sm:text-4xl font-black text-gray-900 font-serif mb-4 shining-text uppercase tracking-tight">Trust from our Clients</h2>
-             <p className="text-gray-500">Real stories from individuals and families we've helped find their perfect space.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {[
-              { name: 'Dr. Emeka Obi', role: 'Home Owner', text: 'Nuga Best transformed my search experience. They found a duplex in Guzape that wasn\'t even publicly listed yet.' },
-              { name: 'Sarah Alabi', role: 'Investor', text: 'Professionalism at its peak. Their legal team ensured my land acquisition in Ibeju-Lekki was 100% stress-free.' },
-              { name: 'Mustapha Kabir', role: 'Commercial Client', text: 'Finding office space in CBD Abuja is tough, but Nuga AI recommended the perfect spot based on our traffic needs.' }
-            ].map((t, i) => (
-              <div key={i} className="bg-gray-50 p-10 rounded-[2.5rem] relative shadow-sm hover:shadow-xl transition-all">
-                <div className="absolute -top-6 left-10 w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white text-2xl font-black">"</div>
-                <p className="text-gray-600 mb-8 italic text-sm leading-relaxed">{t.text}</p>
-                <div>
-                  <h4 className="font-black text-gray-900 uppercase tracking-widest text-xs">{t.name}</h4>
-                  <p className="text-emerald-600 text-[10px] font-bold uppercase">{t.role}</p>
-                </div>
-              </div>
+              <PropertyCard key={property.id} property={property} onViewDetails={setSelectedProperty} />
             ))}
           </div>
         </div>
@@ -192,22 +274,14 @@ const App: React.FC = () => {
 
       {/* Latest Opportunities Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 reveal">
-        <div className="text-center mb-16">
-           <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-4 shining-text uppercase tracking-tight">Latest Opportunities</h2>
-           <p className="text-gray-500 max-w-xl mx-auto text-lg">Check out our most recently listed houses, lands, and commercial spaces across Nigeria.</p>
+        <div className="text-center mb-20">
+           <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-6 shining-text uppercase tracking-tight">Recent Opportunities</h2>
+           <p className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed">The latest verified properties hitting the Nigerian market.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {MOCK_PROPERTIES.slice(0, 8).map((property, idx) => (
-            <PropertyCard key={property.id} property={property} className={`reveal active animate__animated animate__fadeInUp animate__delay-${idx % 4}s`} />
+            <PropertyCard key={property.id} property={property} onViewDetails={setSelectedProperty} className={`reveal active animate__animated animate__fadeInUp animate__delay-${idx % 4}s`} />
           ))}
-        </div>
-        <div className="mt-20 text-center">
-          <button 
-            onClick={() => setCurrentView('for-sale')}
-            className="bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black hover:bg-emerald-700 shadow-2xl shadow-emerald-800/30 transition-all hover:scale-105 active:scale-95 uppercase tracking-widest"
-          >
-            Explore All 20+ Sale Listings
-          </button>
         </div>
       </section>
 
@@ -225,207 +299,125 @@ const App: React.FC = () => {
     </>
   );
 
-  const renderPropertyGrid = (title: string, desc: string, props: typeof MOCK_PROPERTIES) => (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate__animated animate__fadeIn">
-      <PageHeader title={title} description={desc} />
-      {props.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {props.map((property, idx) => (
-            <PropertyCard key={property.id} property={property} className="reveal active animate__animated animate__fadeInUp" />
-          ))}
-        </div>
-      ) : (
-        <div className="py-20 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-          <p className="text-gray-400 font-bold italic">No active listings found in this category.</p>
-        </div>
-      )}
-    </section>
-  );
-
-  const renderCompanies = () => (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate__animated animate__fadeIn">
-      <PageHeader title="Real Estate Companies" description="Partner with Nigeria's most trusted real estate agencies and developers listed on Nuga Best." />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[1, 2, 3, 4, 5, 6].map(i => (
-          <div key={i} className="bg-white p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-all group cursor-pointer">
-            <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-600 transition-colors">
-              <span className="text-2xl font-black text-emerald-600 group-hover:text-white">NB</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Agency Partner {i}</h3>
-            <p className="text-gray-500 text-sm mb-6">Specializing in luxury residential and commercial developments across Lagos and Abuja.</p>
-            <div className="flex items-center text-emerald-600 font-bold text-sm">
-              <span>View Portfolio</span>
-              <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-            </div>
+  const renderPropertyGrid = (title: string, desc: string, typeFilter: string | null) => {
+    const props = getFilteredProperties(typeFilter);
+    return (
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 animate__animated animate__fadeIn">
+        <PageHeader title={locationFilter ? `${title} in ${locationFilter}` : title} description={desc} showClear={!!locationFilter} />
+        {props.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+            {props.map((property, idx) => (
+              <PropertyCard key={property.id} property={property} onViewDetails={setSelectedProperty} className="reveal active animate__animated animate__fadeInUp" />
+            ))}
           </div>
-        ))}
-      </div>
-    </section>
-  );
-
-  const renderResources = () => (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate__animated animate__fadeIn">
-      <PageHeader title="Resources & Guides" description="Everything you need to know about buying, selling, and investing in the Nigerian property market." />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {[
-          { title: "The 2024 Home Buying Guide", category: "Investment", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa" },
-          { title: "Property Laws in Nigeria Explained", category: "Legal", img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f" },
-          { title: "Top 10 Emerging Neighborhoods in Abuja", category: "Trends", img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750" },
-          { title: "How to Secure Your First Land Purchase", category: "Security", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef" }
-        ].map((blog, i) => (
-          <div key={i} className="flex flex-col sm:flex-row bg-white rounded-3xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all group">
-            <div className="sm:w-2/5 h-48 sm:h-auto overflow-hidden">
-              <img src={`${blog.img}?auto=format&fit=crop&w=400&q=80`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={blog.title} />
-            </div>
-            <div className="p-8 sm:w-3/5">
-              <span className="text-emerald-600 font-bold text-[10px] uppercase tracking-widest mb-2 block">{blog.category}</span>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-emerald-600 transition-colors">{blog.title}</h3>
-              <p className="text-gray-500 text-sm mb-6 line-clamp-2">Our expert team breaks down the complexities of the market to ensure your success.</p>
-              <button className="text-emerald-600 font-bold text-sm hover:underline">Read Full Article</button>
-            </div>
+        ) : (
+          <div className="py-32 text-center bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
+            <p className="text-gray-400 text-xl font-bold italic mb-6">No matching listings found in {locationFilter}.</p>
+            <button onClick={() => setLocationFilter(null)} className="bg-emerald-600 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest">View All Locations</button>
           </div>
-        ))}
-      </div>
-    </section>
-  );
-
-  const renderContact = () => (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate__animated animate__fadeIn">
-      <PageHeader title="Contact Us" description="Have questions? Reach out to our dedicated support team or visit one of our offices nationwide." />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-        <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-gray-100 reveal active">
-          <h2 className="text-3xl font-black text-gray-900 mb-8 shining-text uppercase tracking-tighter">Send Message</h2>
-          <form className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
-                <input type="text" className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500" placeholder="John Doe" />
-              </div>
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Email Address</label>
-                <input type="email" className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500" placeholder="john@example.com" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Subject</label>
-              <select className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500">
-                <option>General Inquiry</option>
-                <option>Property Viewing Request</option>
-                <option>Selling my Property</option>
-                <option>Partnership Proposal</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Your Message</label>
-              <textarea rows={4} className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500" placeholder="How can we help?"></textarea>
-            </div>
-            <button className="w-full bg-emerald-600 text-white font-black py-5 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-800/20 transition-all active:scale-95 uppercase tracking-widest">
-              Send Message Now
-            </button>
-          </form>
-        </div>
-        
-        <div className="space-y-10">
-          <div className="bg-emerald-600 p-10 rounded-[2.5rem] text-white shadow-2xl reveal active animate__delay-1s">
-            <h3 className="text-2xl font-black mb-8 uppercase tracking-widest">Our Offices</h3>
-            <div className="space-y-8">
-              <div className="flex">
-                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mr-6 shrink-0 backdrop-blur-md">
-                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg mb-1">Lagos Headquarters</h4>
-                  <p className="text-emerald-100 text-sm opacity-80">12 Admiralty Way, Lekki Phase 1, Lagos Island.</p>
-                </div>
-              </div>
-              <div className="flex">
-                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mr-6 shrink-0 backdrop-blur-md">
-                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                </div>
-                <div>
-                  <h4 className="font-bold text-lg mb-1">Phone & Email</h4>
-                  <p className="text-emerald-100 text-sm opacity-80">+234 (0) 800-NUGA-BEST</p>
-                  <p className="text-emerald-100 text-sm opacity-80">hello@nugabest.com</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-xl reveal active animate__delay-2s">
-             <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-widest">Connect With Us</h3>
-             <div className="flex space-x-4">
-                {['FB', 'TW', 'IG', 'LI'].map(s => (
-                  <div key={s} className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center font-black text-gray-400 hover:bg-emerald-600 hover:text-white transition-all cursor-pointer">
-                    {s}
-                  </div>
-                ))}
-             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+        )}
+      </section>
+    );
+  };
 
   const renderContent = () => {
     switch(currentView) {
-      case 'for-sale': return renderPropertyGrid("Properties for Sale", `Browse through ${forSaleProperties.length} verified listings available for outright purchase.`, forSaleProperties);
-      case 'for-rent': return renderPropertyGrid("Properties for Rent", `Discover thousands of long-term rental options across Nigeria.`, forRentProperties);
-      case 'short-let': return renderPropertyGrid("Short Let Apartments", "Luxury serviced apartments for business trips or vacations.", shortLetProperties);
-      case 'companies': return renderCompanies();
-      case 'resources': return renderResources();
-      case 'contact': return renderContact();
+      case 'for-sale': return renderPropertyGrid("Assets For Sale", "Direct access to verified high-yield property investments.", "For Sale");
+      case 'for-rent': return renderPropertyGrid("Executive Rentals", "Curated selection of premium residences for long-term lease.", "To Rent");
+      case 'short-let': return renderPropertyGrid("Short Stay Apartments", "Ultra-luxury serviced accommodation.", "Short Let");
+      case 'companies': return (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 animate__animated animate__fadeIn">
+          <PageHeader title="Agencies & Developers" description="Partner with the top-tier developers and verified agencies." />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="bg-white p-12 rounded-[2.5rem] border border-gray-100 hover:shadow-2xl transition-all group">
+                <div className="w-24 h-24 bg-emerald-50 rounded-[2rem] flex items-center justify-center mb-8">
+                  <span className="text-3xl font-black text-emerald-600">NB</span>
+                </div>
+                <h3 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tighter">Elite Developer {i}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">Pioneering luxury architectural solutions across major Nigerian cities.</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+      case 'resources': return (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 animate__animated animate__fadeIn">
+          <PageHeader title="Property Guides" description="Expert insights into the Nigerian real estate landscape." />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-white p-12 rounded-[2.5rem] border border-gray-100 hover:shadow-2xl transition-all">
+                <h3 className="text-2xl font-black text-gray-900 mb-6 uppercase tracking-tighter">Acquisition Legalities Guide {i}</h3>
+                <p className="text-gray-500 text-base mb-8 italic">Navigating the Land Use Act for first-time premium investors.</p>
+                <button className="bg-gray-900 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest">Read More</button>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+      case 'contact': return (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 animate__animated animate__fadeIn">
+          <PageHeader title="Get In Touch" description="Our dedicated real estate advisors are standing by to assist you." />
+          <div className="bg-white p-12 md:p-20 rounded-[3rem] shadow-2xl border border-gray-100 max-w-4xl mx-auto">
+             <form className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <input type="text" placeholder="Full Name" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5" />
+               <input type="email" placeholder="Email Address" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5" />
+               <textarea rows={6} placeholder="How can we assist?" className="md:col-span-2 w-full bg-gray-50 border-0 rounded-[2rem] px-6 py-6"></textarea>
+               <button className="md:col-span-2 w-full bg-emerald-600 text-white font-black py-6 rounded-2xl uppercase tracking-[0.3em] text-xs">Send Inquiry</button>
+             </form>
+          </div>
+        </section>
+      );
       default: return renderHome();
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
-      <Header onNavigate={setCurrentView} currentView={currentView} />
+      <Header onNavigate={(v) => { setLocationFilter(null); setCurrentView(v); }} currentView={currentView} />
       <main className="flex-grow">{renderContent()}</main>
+      
+      {selectedProperty && (
+        <PropertyModal 
+          property={selectedProperty} 
+          onClose={() => setSelectedProperty(null)} 
+        />
+      )}
+
       <footer className="bg-gray-950 text-gray-400 pt-24 pb-12 border-t border-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
-            <div className="col-span-1 lg:col-span-1">
+            <div>
               <span className="text-2xl font-black text-white tracking-tighter mb-8 block shining-text-white uppercase">
                 NUGA BEST <span className="text-emerald-500">PROPERTIES</span>
               </span>
-              <p className="text-sm leading-relaxed text-gray-500 mb-8 italic">"Finding you a place to call home is our greatest achievement."</p>
-              <div className="flex space-x-4">
-                {['F', 'T', 'I', 'L'].map(s => <div key={s} className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all text-xs font-black">{s}</div>)}
-              </div>
+              <p className="text-sm italic">"Finding you a place to call home is our greatest achievement."</p>
             </div>
             <div>
-              <h4 className="text-white font-black mb-8 uppercase text-xs tracking-[0.2em]">Quick Links</h4>
-              <ul className="space-y-4 text-sm font-bold">
+              <h4 className="text-white font-black mb-8 uppercase text-xs tracking-widest">Links</h4>
+              <ul className="space-y-4 text-xs font-bold uppercase tracking-wider">
                 <li><button onClick={() => setCurrentView('for-sale')} className="hover:text-emerald-400 transition-colors">For Sale</button></li>
                 <li><button onClick={() => setCurrentView('for-rent')} className="hover:text-emerald-400 transition-colors">For Rent</button></li>
-                <li><button onClick={() => setCurrentView('short-let')} className="hover:text-emerald-400 transition-colors">Short Let</button></li>
-                <li><button onClick={() => setCurrentView('contact')} className="hover:text-emerald-400 transition-colors">Contact Us</button></li>
+                <li><button onClick={() => setCurrentView('contact')} className="hover:text-emerald-400 transition-colors">Contact</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-black mb-8 uppercase text-xs tracking-[0.2em]">Legal</h4>
-              <ul className="space-y-4 text-sm font-bold">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Terms of Use</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Safety Guide</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Avoid Scams</a></li>
+              <h4 className="text-white font-black mb-8 uppercase text-xs tracking-widest">Legal</h4>
+              <ul className="space-y-4 text-xs font-bold uppercase tracking-wider">
+                <li><a href="#" className="hover:text-emerald-400 transition-colors">Privacy</a></li>
+                <li><a href="#" className="hover:text-emerald-400 transition-colors">Terms</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-black mb-8 uppercase text-xs tracking-[0.2em]">Newsletter</h4>
-              <p className="text-sm text-gray-500 mb-6">Weekly curated deals sent to your inbox.</p>
-              <form className="flex">
-                <input type="email" placeholder="Email" className="bg-gray-900 border-none rounded-l-2xl px-5 py-4 text-sm w-full text-white" />
-                <button className="bg-emerald-600 text-white px-6 py-4 rounded-r-2xl hover:bg-emerald-700 font-black">Join</button>
+              <h4 className="text-white font-black mb-8 uppercase text-xs tracking-widest">Update</h4>
+              <form className="flex mt-4">
+                <input type="email" placeholder="Email" className="bg-gray-900 border-none rounded-l-2xl px-5 py-4 text-xs w-full text-white" />
+                <button className="bg-emerald-600 text-white px-6 py-4 rounded-r-2xl font-black text-xs uppercase tracking-widest">Join</button>
               </form>
             </div>
           </div>
-          <div className="pt-12 border-t border-gray-900 flex flex-col md:flex-row justify-between items-center text-xs font-black tracking-widest text-gray-600 uppercase">
-            <p>&copy; {new Date().getFullYear()} Nuga Best Properties. Leading The Way.</p>
-            <div className="flex space-x-8 mt-6 md:mt-0">
-               <a href="#" className="hover:text-white">Site Map</a>
-               <a href="#" className="hover:text-white">Cookie Policy</a>
-            </div>
+          <div className="pt-12 border-t border-gray-900 text-center text-[10px] font-black tracking-[0.3em] text-gray-600 uppercase">
+            &copy; {new Date().getFullYear()} Nuga Best Properties. All Rights Reserved.
           </div>
         </div>
       </footer>

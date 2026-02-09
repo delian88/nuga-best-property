@@ -4,20 +4,31 @@ import { Property } from '../types';
 
 interface PropertyCardProps {
   property: Property;
+  onViewDetails?: (property: Property) => void;
   className?: string;
 }
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80';
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property, className = "" }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, onViewDetails, className = "" }) => {
   const [imgSrc, setImgSrc] = useState(property.imageUrl);
 
   const handleError = () => {
     setImgSrc(FALLBACK_IMAGE);
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onViewDetails) {
+      onViewDetails(property);
+    }
+  };
+
   return (
-    <div className={`bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer ${className}`}>
+    <div 
+      onClick={handleClick}
+      className={`bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer ${className}`}
+    >
       {/* Image Container */}
       <div className="relative h-56 overflow-hidden bg-gray-100">
         <img 
@@ -42,7 +53,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, className = "" })
         </div>
 
         <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-           <button className="w-full bg-white text-emerald-900 font-black py-2.5 rounded-xl text-xs uppercase tracking-widest shadow-2xl">
+           <button 
+             onClick={handleClick}
+             className="w-full bg-white text-emerald-900 font-black py-2.5 rounded-xl text-xs uppercase tracking-widest shadow-2xl"
+           >
              View Details
            </button>
         </div>

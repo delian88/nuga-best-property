@@ -13,6 +13,10 @@ export interface Property {
   imageUrl: string;
   featured: boolean;
   postedDate: string;
+  sqm?: number;
+  description?: string;
+  interiorFeatures?: string[];
+  amenities?: string[];
 }
 
 export interface SearchFilters {
