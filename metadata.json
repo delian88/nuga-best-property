@@ -1,0 +1,7 @@
+{
+  "name": "Nuga Best Properties",
+  "description": "A premium real estate portal for Nuga Best Properties, inspired by Nigeria Property Centre, featuring property search, featured listings, and AI-powered property assistance.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
