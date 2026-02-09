@@ -181,6 +181,11 @@ const App: React.FC = () => {
     </div>
   );
 
+  const partners = [
+    'DEV-A PROPERTIES', 'LUXE HOMES NIGERIA', 'PRIME ESTATES', 'URBAN CORP', 'GREEN DEVELOPERS', 
+    'ELITE LANDS', 'CITADEL HOMES', 'VINTAGE REALTORS', 'CRESTVIEW DEV', 'SKYLINE PROPERTIES'
+  ];
+
   const renderHome = () => (
     <>
       <Hero />
@@ -285,15 +290,22 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Partner Developers */}
-      <section className="bg-gray-50 py-16 reveal border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <p className="text-center text-gray-400 font-black uppercase text-[10px] tracking-[0.4em] mb-12">Trusted by Leading Developers</p>
-           <div className="flex flex-wrap justify-center items-center gap-12 sm:gap-20 opacity-30 grayscale hover:grayscale-0 transition-all duration-500">
-             {['DEV-A', 'LUXE-HOMES', 'PRIME-ESTATES', 'URBAN-CORP', 'GREEN-DEVELOPERS'].map(brand => (
-               <span key={brand} className="text-2xl font-black text-gray-900 tracking-tighter">{brand}</span>
-             ))}
-           </div>
+      {/* Partner Developers - SLIDING MARQUEE */}
+      <section className="bg-gray-50 py-20 reveal border-t border-gray-100 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+           <p className="text-center text-gray-400 font-black uppercase text-[10px] tracking-[0.4em]">Trusted by Leading Developers</p>
+        </div>
+        <div className="relative flex overflow-x-hidden group">
+          <div className="py-12 flex whitespace-nowrap animate-marquee">
+            {[...partners, ...partners].map((brand, i) => (
+              <span 
+                key={i} 
+                className="mx-16 text-3xl font-black text-gray-900 tracking-tighter opacity-20 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0"
+              >
+                {brand}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
     </>

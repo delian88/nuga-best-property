@@ -4,8 +4,45 @@ import { Property } from './types';
 // Helper for generating varied interior features
 const interiorFeatures = ['Smart Home Automation', 'Walk-in Closets', 'Chef\'s Kitchen', 'Marble Flooring', 'Home Cinema', 'Elevator', 'In-built Speakers', 'Jacuzzi', 'Gas Cooker', 'Heat Extractor', 'Central AC', 'Tiled Floors', 'Wardrobes', 'POP Ceiling'];
 
+const saleTitles = [
+  'Luxury 5 Bedroom Penthouse with BQ', 'Contemporary 4 Bedroom Terrace House', 'Exquisite 6 Bedroom Detached Mansion',
+  'Prime 600sqm Land in Secured Estate', 'Modern 5 Bedroom Duplex with Cinema', 'Premium Industrial Warehouse Space',
+  'Fully Serviced 3 Bedroom Apartment', 'Sophisticated 4 Bedroom Semi-Detached', 'High-Yield Commercial Plaza',
+  'Elegant 5 Bedroom Smart Home', 'Architectural Masterpiece Duplex', 'Grand 7 Bedroom Palace',
+  'Eco-Friendly 4 Bedroom Smart House', 'Urban 3 Bedroom Condominium', 'Spacious Corner-Piece Land',
+  'Luxury Estate Mansion', 'Mini-Estate Development Land', 'Corporate Office Complex',
+  'Executive Waterfront Villa', 'The Royal Penthouse'
+];
+
+const rentTitles = [
+  'Standard 3 Bedroom Apartment', 'Luxury 2 Bedroom Serviced Flat', 'Spacious 4 Bedroom Duplex',
+  'Self Contain Studio Apartment', 'Executive Office Space', 'Cozy 3 Bedroom Bungalow',
+  'Modern 1 Bedroom Mini Flat', 'Open Plan Showroom', 'Premium 4 Bedroom Terrace',
+  'Furnished 3 Bedroom Apartment', 'Quiet 2 Bedroom Flat', 'Retail Space in Shopping Mall',
+  'Elegant Duplex for Corporate Lease', 'Renovated 3 Bedroom Home', 'Penthouse for Rent',
+  'Serviced Mini-Flat', 'Semi-Detached 4 Bedroom House', 'Commercial Warehouse',
+  'Studio Flat for Professionals', 'Upper Class 3 Bedroom Flat'
+];
+
+const shortLetTitles = [
+  'Luxury 3 Bedroom Waterfront Penthouse', 'Cozy 1 Bedroom Studio for Travelers', 'Exquisite 4 Bedroom Villa with Pool',
+  'Shortlet: Premium 2 Bedroom Flat', 'Luxury Shortstay Studio', 'Executive 3 Bedroom Serviced Apt',
+  'Minimalist 2 Bedroom Shortlet', 'Celebrity Standard 5 Bedroom Villa', 'Home Away from Home 3 Bedroom',
+  'Modern 1 Bedroom Studio Oniru', 'Staycation 2 Bedroom Haven', 'Business Suite Oniru',
+  'Ocean View 3 Bedroom Shortlet', 'The Ikoyi Sanctuary', 'Signature Shortstay Duplex',
+  'Vacation 4 Bedroom Villa', 'Designer 2 Bedroom Loft', 'The Guest House Shortlet',
+  'Zen 1 Bedroom Apartment', 'Vibrant Victoria Island Suite'
+];
+
+const locations = [
+  'Lekki Phase 1, Lagos', 'Asokoro, Abuja', 'Old GRA, Port Harcourt', 'Ibeju Lekki, Lagos', 'Guzape, Abuja',
+  'Maitama, Abuja', 'Victoria Island, Lagos', 'Magodo Phase 2, Lagos', 'Enugu GRA', 'Trans Amadi, PH',
+  'Banana Island, Lagos', 'Eko Atlantic, Lagos', 'Wuse 2, Abuja', 'Ikoyi, Lagos', 'Oniru, Lagos',
+  'GRA, Benin City', 'Gwarinpa, Abuja', 'Surulere, Lagos', 'Ikeja GRA, Lagos', 'VGC, Lagos'
+];
+
 export const MOCK_PROPERTIES: Property[] = [
-  // --- EXISTING PROPERTIES ---
+  // Base manual listings
   {
     id: '1',
     title: 'Modern 5 Bedroom Fully Detached Mansion',
@@ -98,112 +135,85 @@ export const MOCK_PROPERTIES: Property[] = [
     amenities: ['Standby Generator', 'Cleaning Services', 'Uniformed Security', 'Swimming Pool']
   },
 
-  // --- FOR SALE (20 NEW) ---
-  ...Array.from({ length: 20 }, (_, i) => ({
-    id: `sale-${i + 10}`,
-    title: [
-      'Luxury 5 Bedroom Penthouse with BQ',
-      'Contemporary 4 Bedroom Terrace House',
-      'Exquisite 6 Bedroom Detached Mansion',
-      'Prime 600sqm Land in Secured Estate',
-      'Modern 5 Bedroom Duplex with Cinema',
-      'Premium Industrial Warehouse Space',
-      'Fully Serviced 3 Bedroom Apartment',
-      'Sophisticated 4 Bedroom Semi-Detached',
-      'High-Yield Commercial Plaza',
-      'Elegant 5 Bedroom Smart Home'
-    ][i % 10],
+  // Generated Sale Listings (20)
+  ...saleTitles.map((title, i) => ({
+    id: `sale-gen-${i}`,
+    title,
     type: 'For Sale' as const,
-    category: (i % 4 === 0 ? 'Land' : i % 5 === 0 ? 'Commercial' : i % 3 === 0 ? 'Flat' : 'House') as any,
-    price: [45000000, 120000000, 350000000, 25000000, 550000000, 75000000, 850000000, 180000000, 42000000, 95000000][i % 10],
+    category: (i % 5 === 0 ? 'Land' : i % 8 === 0 ? 'Commercial' : i % 3 === 0 ? 'Flat' : 'House') as any,
+    price: (i + 1) * 35000000 + 20000000,
     currency: '₦',
-    location: ['Lekki Phase 1, Lagos', 'Asokoro, Abuja', 'Old GRA, Port Harcourt', 'Ibeju Lekki, Lagos', 'Guzape, Abuja', 'Maitama, Abuja', 'Victoria Island, Lagos', 'Magodo Phase 2, Lagos', 'Enugu GRA', 'Trans Amadi, PH'][i % 10],
-    beds: i % 4 === 0 ? undefined : (3 + (i % 4)),
-    baths: i % 4 === 0 ? undefined : (3 + (i % 4)),
-    toilets: i % 4 === 0 ? undefined : (4 + (i % 4)),
+    location: locations[i % locations.length],
+    beds: i % 5 === 0 ? undefined : (3 + (i % 4)),
+    baths: i % 5 === 0 ? undefined : (3 + (i % 4)),
+    toilets: i % 5 === 0 ? undefined : (4 + (i % 4)),
     imageUrl: `https://images.unsplash.com/photo-${[
-      '1600596542815-ffad4c1539a9', '1600047509807-ba8f99d2cdde', '1600585154526-990dcea4db0d', '1500382017468-9049fed747ef', 
+      '1600596542815-ffad4c1539a9', '1600047509807-ba8f99d2cdde', '1600585154526-990dcea4db0d', '1512917774080-9991f1c4c750', 
       '1600566752355-3979ff69a3bc', '1586528116311-ad8dd3c8310d', '1527359443443-84a48abc7df8', '1564013799919-ab600027ffc6',
-      '1486406146926-c627a92ad1ab', '1600585154340-be6161a56a0c'
-    ][i % 10]}?auto=format&fit=crop&w=800&q=80`,
-    featured: i % 3 === 0,
-    postedDate: `${i + 1} day${i === 0 ? '' : 's'} ago`,
-    sqm: [450, 600, 1200, 300, 500, 1000, 250, 800, 400, 750][i % 10],
-    description: 'This premium listing represents the pinnacle of real estate in this region. Perfect for investment or as a luxury family residence with top-tier security and amenities.',
-    interiorFeatures: interiorFeatures.slice(i % 5, (i % 5) + 6),
-    amenities: ['24/7 Power', 'Uniformed Security', 'Clean Water', 'Paved Road']
+      '1486406146926-c627a92ad1ab', '1600585154340-be6161a56a0c', '1580587771525-78b9dba3b914', '1568605114967-8130f3a36994',
+      '1513584684032-297924408895', '1448630360428-288d665b704e', '1416339442236-8ceb164046f8', '1523217582562-09d0def993a6',
+      '1502672260266-1c1ef2d93688', '1582268611958-ebfd161ef9cf', '1494526585095-c41746248156', '1472224317457-5f96bc11b138'
+    ][i % 20]}?auto=format&fit=crop&w=800&q=80`,
+    featured: i % 4 === 0,
+    postedDate: `${i + 1} day ago`,
+    sqm: (i + 1) * 50 + 200,
+    description: 'Luxury investment opportunity in a prime location. Verified documents and ready for immediate transfer of ownership.',
+    interiorFeatures: interiorFeatures.slice(i % 5, (i % 5) + 5),
+    amenities: ['24/7 Power', 'Gated Access', 'Treated Water']
   })),
 
-  // --- TO RENT (20 NEW) ---
-  ...Array.from({ length: 20 }, (_, i) => ({
-    id: `rent-${i + 10}`,
-    title: [
-      'Standard 3 Bedroom Apartment',
-      'Luxury 2 Bedroom Serviced Flat',
-      'Spacious 4 Bedroom Duplex',
-      'Self Contain Studio Apartment',
-      'Executive Office Space',
-      'Cozy 3 Bedroom Bungalow',
-      'Modern 1 Bedroom Mini Flat',
-      'Open Plan Showroom',
-      'Premium 4 Bedroom Terrace',
-      'Furnished 3 Bedroom Apartment'
-    ][i % 10],
+  // Generated Rent Listings (20)
+  ...rentTitles.map((title, i) => ({
+    id: `rent-gen-${i}`,
+    title,
     type: 'To Rent' as const,
-    category: (i % 8 === 0 ? 'Commercial' : i % 3 === 0 ? 'House' : 'Flat') as any,
-    price: [1500000, 3500000, 7000000, 450000, 12000000, 2500000, 850000, 25000000, 5500000, 4000000][i % 10],
+    category: (i % 10 === 0 ? 'Commercial' : i % 4 === 0 ? 'House' : 'Flat') as any,
+    price: (i + 1) * 800000 + 500000,
     currency: '₦',
-    location: ['Surulere, Lagos', 'Yaba, Lagos', 'Gwarinpa, Abuja', 'Akoka, Lagos', 'Victoria Island, Lagos', 'Wuse 2, Abuja', 'Ikeja, Lagos', 'Lekki Phase 1, Lagos', 'Iko-Ekiti', 'Sangotedo, Lagos'][i % 10],
-    beds: i % 8 === 0 ? undefined : (1 + (i % 4)),
-    baths: i % 8 === 0 ? undefined : (1 + (i % 4)),
-    toilets: i % 8 === 0 ? undefined : (2 + (i % 4)),
+    location: locations[(i + 5) % locations.length],
+    beds: i % 10 === 0 ? undefined : (1 + (i % 4)),
+    baths: i % 10 === 0 ? undefined : (1 + (i % 4)),
+    toilets: i % 10 === 0 ? undefined : (2 + (i % 4)),
     imageUrl: `https://images.unsplash.com/photo-${[
       '1522708323590-d24dbb6b0267', '1493809842364-78817add7ffb', '1600585154340-be6161a56a0c', '1536376074432-bf121781188c',
       '1497366216548-37526070297c', '1580587771525-78b9dba3b914', '1502672260266-1c1ef2d93688', '1486406146926-c627a92ad1ab',
-      '1564013799919-ab600027ffc6', '1527359443443-84a48abc7df8'
-    ][i % 10]}?auto=format&fit=crop&w=800&q=80`,
-    featured: i % 4 === 0,
-    postedDate: `${i + 2} hour${i === 0 ? '' : 's'} ago`,
-    sqm: [120, 180, 450, 45, 250, 300, 65, 500, 350, 200][i % 10],
-    description: 'Beautifully finished rental option in a strategic location. Close to major landmarks, schools, and business districts. Ready for immediate move-in.',
-    interiorFeatures: interiorFeatures.slice(i % 3, (i % 3) + 4),
-    amenities: ['Borehole', 'Security', 'Waste Disposal']
+      '1564013799919-ab600027ffc6', '1527359443443-84a48abc7df8', '1554995207-c18c203602cb', '1494438639946-1ebd1d20bf85',
+      '1484154218962-a197022b5858', '1512918766671-ad6507962077', '1515263487990-61b0082b6b02', '1560448204-61dc36dc98c8',
+      '1464890100898-a385f744067f', '1582268611958-ebfd161ef9cf', '1481310198475-5945a1f7d19d', '1591474200742-8e512e6f98f8'
+    ][i % 20]}?auto=format&fit=crop&w=800&q=80`,
+    featured: i % 6 === 0,
+    postedDate: `${i + 2} hours ago`,
+    sqm: (i + 1) * 30 + 100,
+    description: 'Strategically located with excellent road access. Ideal for families or professionals looking for a secure and comfortable living space.',
+    interiorFeatures: interiorFeatures.slice(i % 4, (i % 4) + 4),
+    amenities: ['Uniformed Security', 'Borehole', 'Spacious Compound']
   })),
 
-  // --- SHORT LET (20 NEW) ---
-  ...Array.from({ length: 20 }, (_, i) => ({
-    id: `shortlet-${i + 10}`,
-    title: [
-      'Luxury 3 Bedroom Waterfront Penthouse',
-      'Cozy 1 Bedroom Studio for Travelers',
-      'Exquisite 4 Bedroom Villa with Pool',
-      'Shortlet: Premium 2 Bedroom Flat',
-      'Luxury Shortstay Studio',
-      'Executive 3 Bedroom Serviced Apt',
-      'Minimalist 2 Bedroom Shortlet',
-      'Celebrity Standard 5 Bedroom Villa',
-      'Home Away from Home 3 Bedroom',
-      'Modern 1 Bedroom Studio Oniru'
-    ][i % 10],
+  // Generated Short Let Listings (20)
+  ...shortLetTitles.map((title, i) => ({
+    id: `shortlet-gen-${i}`,
+    title,
     type: 'Short Let' as const,
     category: (i % 5 === 0 ? 'House' : 'Flat') as any,
-    price: [150000, 45000, 250000, 85000, 55000, 120000, 75000, 450000, 110000, 60000][i % 10],
+    price: (i + 1) * 15000 + 40000,
     currency: '₦',
-    location: ['Oniru, Lagos', 'Victoria Island, Lagos', 'Banana Island, Lagos', 'Lekki Phase 1, Lagos', 'Asokoro, Abuja', 'Maitama, Abuja', 'Eko Atlantic, Lagos', 'Osapa London, Lagos', 'Jabi, Abuja', 'Ikoyi, Lagos'][i % 10],
-    beds: (1 + (i % 5)),
-    baths: (1 + (i % 5)),
-    toilets: (2 + (i % 5)),
+    location: locations[(i + 10) % locations.length],
+    beds: (1 + (i % 4)),
+    baths: (1 + (i % 4)),
+    toilets: (2 + (i % 4)),
     imageUrl: `https://images.unsplash.com/photo-${[
       '1502672260266-1c1ef2d93688', '1536376074432-bf121781188c', '1613977257363-707ba9348227', '1527359443443-84a48abc7df8',
       '1493809842364-78817add7ffb', '1512918766671-ad6507962077', '1522708323590-d24dbb6b0267', '1564013799919-ab600027ffc6',
-      '1600585154340-be6161a56a0c', '1600607687920-4e2a09cf159d'
-    ][i % 10]}?auto=format&fit=crop&w=800&q=80`,
-    featured: i % 2 === 0,
+      '1600585154340-be6161a56a0c', '1600607687920-4e2a09cf159d', '1554995207-c18c203602cb', '1560185127-6ed189bf02f4',
+      '1505691938895-1758d7eaa511', '1499951360447-b19be8fe80f5', '1484154218962-a197022b5858', '1516455590571-18256e5bb9ff',
+      '1580587771525-78b9dba3b914', '1472224317457-5f96bc11b138', '1600210492486-724fe5c67fb0', '1564013799919-ab600027ffc6'
+    ][i % 20]}?auto=format&fit=crop&w=800&q=80`,
+    featured: i % 3 === 0,
     postedDate: 'Just now',
-    sqm: [250, 50, 800, 150, 60, 220, 140, 1200, 180, 55][i % 10],
-    description: 'Experience ultimate luxury in our short-stay apartments. Fully fitted with modern electronics, high-speed WiFi, and 24/7 power. Perfect for business or leisure.',
-    interiorFeatures: ['WiFi', 'Smart TV', 'Fully Equipped Kitchen', 'Netflix', 'PS5', 'Washing Machine'],
-    amenities: ['24/7 Power', 'Swimming Pool', 'Gym', 'Daily Housekeeping', 'Tight Security']
+    sqm: (i + 1) * 20 + 50,
+    description: 'Exquisite short-stay apartment with five-star amenities. Fully serviced with high-speed internet, smart TVs, and premium concierge services.',
+    interiorFeatures: ['WiFi', 'Smart TV', 'Chef Service', 'Netflix', 'Home Office'],
+    amenities: ['24/7 Power', 'Swimming Pool', 'Daily Cleaning', 'Underground Parking']
   }))
 ];
 
