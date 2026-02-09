@@ -12,6 +12,7 @@
     :root {
       --fuchsia-700: #a21caf;
       --emerald-600: #059669;
+      --emerald-500: #10b981;
     }
     html, body {
       width: 100%;
@@ -44,6 +45,49 @@
     .animate-slow-zoom {
       animation: slowZoom 30s infinite alternate ease-in-out;
     }
+
+    /* Glass Shimmer / Shining Green Text Effect */
+    .shining-text {
+      background: linear-gradient(
+        to right,
+        #059669 20%,
+        #d1fae5 40%,
+        #d1fae5 60%,
+        #059669 80%
+      );
+      background-size: 200% auto;
+      color: #059669;
+      background-clip: text;
+      text-fill-color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+      font-weight: 800;
+    }
+
+    .shining-text-white {
+      background: linear-gradient(
+        to right,
+        #ffffff 20%,
+        #34d399 40%,
+        #10b981 60%,
+        #ffffff 80%
+      );
+      background-size: 200% auto;
+      color: #ffffff;
+      background-clip: text;
+      text-fill-color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 4s linear infinite;
+    }
+
+    @keyframes shine {
+      to {
+        background-position: 200% center;
+      }
+    }
+
     /* Smooth Scrollbar for mobile/desktop */
     ::-webkit-scrollbar {
       width: 6px;
@@ -52,7 +96,7 @@
       background: #f1f1f1;
     }
     ::-webkit-scrollbar-thumb {
-      background: #a21caf;
+      background: #059669;
       border-radius: 10px;
     }
   </style>
