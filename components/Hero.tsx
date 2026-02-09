@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { LOCATIONS, CATEGORIES } from '../constants';
+import { CATEGORIES } from '../constants';
 
 const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1920&q=80', // Mansion (Sale)
@@ -13,6 +13,7 @@ const HERO_IMAGES = [
 const Hero: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Buy');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [locationInput, setLocationInput] = useState('');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -91,15 +92,18 @@ const Hero: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
-            <div className="relative">
-              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Location</label>
+            <div className="relative col-span-1 sm:col-span-2">
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Location / Keyword</label>
               <div className="relative">
-                <select className="w-full border-b-2 border-gray-100 py-3 text-sm focus:border-emerald-500 focus:outline-none bg-transparent font-semibold appearance-none cursor-pointer transition-colors">
-                  <option>All of Nigeria</option>
-                  {LOCATIONS.map(loc => <option key={loc}>{loc}</option>)}
-                </select>
+                <input 
+                  type="text"
+                  value={locationInput}
+                  onChange={(e) => setLocationInput(e.target.value)}
+                  placeholder="Enter state, locality or keyword"
+                  className="w-full border-b-2 border-gray-100 py-3 text-sm focus:border-emerald-500 focus:outline-none bg-transparent font-semibold transition-colors placeholder:text-gray-300 placeholder:font-normal"
+                />
                 <div className="absolute right-0 bottom-3 pointer-events-none text-gray-400">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </div>
               </div>
             </div>
@@ -109,21 +113,6 @@ const Hero: React.FC = () => {
                 <select className="w-full border-b-2 border-gray-100 py-3 text-sm focus:border-emerald-500 focus:outline-none bg-transparent font-semibold appearance-none cursor-pointer transition-colors">
                   <option>All Categories</option>
                   {CATEGORIES.map(cat => <option key={cat}>{cat}</option>)}
-                </select>
-                <div className="absolute right-0 bottom-3 pointer-events-none text-gray-400">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
-                </div>
-              </div>
-            </div>
-            <div className="relative">
-              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Budget</label>
-              <div className="relative">
-                <select className="w-full border-b-2 border-gray-100 py-3 text-sm focus:border-emerald-500 focus:outline-none bg-transparent font-semibold appearance-none cursor-pointer transition-colors">
-                  <option>Any Budget</option>
-                  <option>Under ₦5M</option>
-                  <option>₦5M - ₦50M</option>
-                  <option>₦50M - ₦200M</option>
-                  <option>Above ₦200M</option>
                 </select>
                 <div className="absolute right-0 bottom-3 pointer-events-none text-gray-400">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>

@@ -16,6 +16,7 @@ const AIChatBot: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -25,6 +26,15 @@ const AIChatBot: React.FC = () => {
       });
     }
   }, [messages, isLoading]);
+
+  // Autofocus input when the chat opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 500); // Wait for open animation
+    }
+  }, [isOpen]);
 
   const handleSend = async (text: string = input) => {
     const messageToSend = text.trim();
@@ -147,6 +157,7 @@ const AIChatBot: React.FC = () => {
           <div className="p-6 border-t border-gray-100 bg-white shrink-0">
             <div className="flex items-center space-x-4">
               <input 
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
