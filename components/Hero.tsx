@@ -10,10 +10,15 @@ const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80'  // Duplex (Modern)
 ];
 
-const Hero: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('Buy');
+interface HeroProps {
+  onSearch?: (type: string, location: string, category: string) => void;
+}
+
+const Hero: React.FC<HeroProps> = ({ onSearch }) => {
+  const [activeTab, setActiveTab] = useState('Buy'); // UI labels: Buy, Rent, Short Let
   const [currentSlide, setCurrentSlide] = useState(0);
   const [locationInput, setLocationInput] = useState('');
+  const [categoryInput, setCategoryInput] = useState('All Categories');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -21,6 +26,17 @@ const Hero: React.FC = () => {
     }, 6000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleSearchClick = () => {
+    // Map UI Tab labels to Property types
+    let propertyType = 'For Sale';
+    if (activeTab === 'Rent') propertyType = 'To Rent';
+    if (activeTab === 'Short Let') propertyType = 'Short Let';
+
+    if (onSearch) {
+      onSearch(propertyType, locationInput, categoryInput);
+    }
+  };
 
   return (
     <div className="relative min-h-[550px] h-[75vh] sm:h-[700px] bg-fuchsia-950 overflow-hidden flex items-center justify-center py-10">
@@ -110,9 +126,13 @@ const Hero: React.FC = () => {
             <div className="relative">
               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Type</label>
               <div className="relative">
-                <select className="w-full border-b-2 border-gray-100 py-3 text-sm focus:border-emerald-500 focus:outline-none bg-transparent font-semibold appearance-none cursor-pointer transition-colors">
+                <select 
+                  value={categoryInput}
+                  onChange={(e) => setCategoryInput(e.target.value)}
+                  className="w-full border-b-2 border-gray-100 py-3 text-sm focus:border-emerald-500 focus:outline-none bg-transparent font-semibold appearance-none cursor-pointer transition-colors"
+                >
                   <option>All Categories</option>
-                  {CATEGORIES.map(cat => <option key={cat}>{cat}</option>)}
+                  {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
                 <div className="absolute right-0 bottom-3 pointer-events-none text-gray-400">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
@@ -120,7 +140,10 @@ const Hero: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center pt-2 md:pt-4">
-              <button className="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 shadow-xl shadow-emerald-800/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center space-x-3 text-base">
+              <button 
+                onClick={handleSearchClick}
+                className="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 shadow-xl shadow-emerald-800/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center space-x-3 text-base"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <span>Search</span>
               </button>

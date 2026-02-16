@@ -118,6 +118,7 @@ const PropertyModal: React.FC<{ property: Property; onClose: () => void }> = ({ 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const [locationFilter, setLocationFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
   useEffect(() => {
@@ -134,7 +135,7 @@ const App: React.FC = () => {
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     return () => observer.disconnect();
-  }, [currentView, locationFilter]);
+  }, [currentView, locationFilter, categoryFilter]);
 
   const handleLocationClick = (locName: string) => {
     const parts = locName.split(', ');
@@ -142,18 +143,44 @@ const App: React.FC = () => {
     const city = parts[0] || state;
     
     setLocationFilter(city);
+    setCategoryFilter(null);
     setCurrentView('for-sale');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleHeroSearch = (type: string, location: string, category: string) => {
+    setLocationFilter(location || null);
+    setCategoryFilter(category === 'All Categories' ? null : category);
+    
+    // Set view based on type
+    if (type === 'For Sale') setCurrentView('for-sale');
+    else if (type === 'To Rent') setCurrentView('for-rent');
+    else if (type === 'Short Let') setCurrentView('short-let');
+    
+    window.scrollTo({ top: 600, behavior: 'smooth' });
+  };
+
   const getFilteredProperties = (typeFilter: string | null = null) => {
     let props = MOCK_PROPERTIES;
+    
     if (typeFilter) {
       props = props.filter(p => p.type === typeFilter);
     }
+    
     if (locationFilter) {
-      props = props.filter(p => p.location.toLowerCase().includes(locationFilter.toLowerCase()));
+      const loc = locationFilter.toLowerCase();
+      props = props.filter(p => 
+        p.location.toLowerCase().includes(loc) || 
+        p.title.toLowerCase().includes(loc)
+      );
     }
+
+    if (categoryFilter) {
+      // Map "Flat / Apartment" from UI/Constants to "Flat" in mock data
+      const cat = categoryFilter === 'Flat / Apartment' ? 'Flat' : categoryFilter;
+      props = props.filter(p => p.category === cat);
+    }
+
     return props;
   };
 
@@ -169,13 +196,13 @@ const App: React.FC = () => {
           {description}
         </p>
       </div>
-      {showClear && locationFilter && (
+      {showClear && (locationFilter || categoryFilter) && (
         <button 
-          onClick={() => setLocationFilter(null)}
+          onClick={() => { setLocationFilter(null); setCategoryFilter(null); }}
           className="mt-6 md:mt-0 text-xs font-black text-emerald-600 border-b-2 border-emerald-600 uppercase tracking-widest hover:text-emerald-800 hover:border-emerald-800 transition-all flex items-center"
         >
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
-          Clear Location: {locationFilter}
+          Clear Filters
         </button>
       )}
     </div>
@@ -188,7 +215,7 @@ const App: React.FC = () => {
 
   const renderHome = () => (
     <>
-      <Hero />
+      <Hero onSearch={handleHeroSearch} />
 
       {/* Browse by Neighborhoods */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 reveal">
@@ -263,7 +290,7 @@ const App: React.FC = () => {
               <div className="h-2 w-24 bg-emerald-600 mt-6 rounded-full mx-auto md:mx-0"></div>
             </div>
             <button 
-              onClick={() => { setLocationFilter(null); setCurrentView('for-sale'); }}
+              onClick={() => { setLocationFilter(null); setCategoryFilter(null); setCurrentView('for-sale'); }}
               className="px-10 py-4 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-800/20 uppercase text-xs tracking-[0.2em]"
             >
               Explore All Listings
@@ -313,9 +340,12 @@ const App: React.FC = () => {
 
   const renderPropertyGrid = (title: string, desc: string, typeFilter: string | null) => {
     const props = getFilteredProperties(typeFilter);
+    const filterInfo = [locationFilter, categoryFilter].filter(Boolean).join(' - ');
+    const displayTitle = filterInfo ? `${title} (${filterInfo})` : title;
+
     return (
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 animate__animated animate__fadeIn">
-        <PageHeader title={locationFilter ? `${title} in ${locationFilter}` : title} description={desc} showClear={!!locationFilter} />
+        <PageHeader title={displayTitle} description={desc} showClear={!!(locationFilter || categoryFilter)} />
         {props.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
             {props.map((property, idx) => (
@@ -324,8 +354,13 @@ const App: React.FC = () => {
           </div>
         ) : (
           <div className="py-32 text-center bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-            <p className="text-gray-400 text-xl font-bold italic mb-6">No matching listings found in {locationFilter}.</p>
-            <button onClick={() => setLocationFilter(null)} className="bg-emerald-600 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest">View All Locations</button>
+            <p className="text-gray-400 text-xl font-bold italic mb-6">No matching listings found for your search criteria.</p>
+            <button 
+              onClick={() => { setLocationFilter(null); setCategoryFilter(null); }} 
+              className="bg-emerald-600 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest"
+            >
+              Reset All Filters
+            </button>
           </div>
         )}
       </section>
@@ -386,7 +421,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
-      <Header onNavigate={(v) => { setLocationFilter(null); setCurrentView(v); }} currentView={currentView} />
+      <Header onNavigate={(v) => { setLocationFilter(null); setCategoryFilter(null); setCurrentView(v); }} currentView={currentView} />
       <main className="flex-grow">{renderContent()}</main>
       
       {selectedProperty && (
