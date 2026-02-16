@@ -7,7 +7,8 @@ export interface ChatMessage {
 }
 
 export async function getPropertyAdvice(history: ChatMessage[]): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  // Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY}); as per guidelines.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -28,6 +29,7 @@ export async function getPropertyAdvice(history: ChatMessage[]): Promise<string>
         topP: 0.95,
       }
     });
+    // response.text is a property, returning the generated string output.
     return response.text || "I'm sorry, I couldn't process that request right now. Could you rephrase your question?";
   } catch (error) {
     console.error("Gemini Error:", error);
