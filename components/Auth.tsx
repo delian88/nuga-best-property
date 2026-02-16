@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
-import { db, User } from '../services/dbService';
+// Corrected import: User type should be imported from types.ts, db from dbService
+import { db } from '../services/dbService';
+import { User } from '../types';
 
 interface AuthProps {
   onAuthSuccess: (user: User) => void;
@@ -44,7 +46,10 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
           name,
           role: 'user',
           // Fixed: joinedDate is a required property of the User interface
-          joinedDate: new Date().toISOString()
+          joinedDate: new Date().toISOString(),
+          status: 'active',
+          verified: false,
+          kycStatus: 'unsubmitted'
         };
         // Fixed: createUser is the correct async method to add a user to dbService
         await db.createUser(newUser);

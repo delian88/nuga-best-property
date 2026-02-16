@@ -1,30 +1,9 @@
 
-import { Property, Appointment, ChatMessage, Offer } from '../types';
+import { Property, Appointment, ChatMessage, Offer, User, Inquiry, Transaction, SystemSettings } from '../types';
 import { MOCK_PROPERTIES } from '../constants';
 
 const DB_PREFIX = 'nuga_postgres_';
 const MIGRATION_KEY = 'nuga_migrations';
-
-export interface User {
-  id: string;
-  email: string;
-  password?: string;
-  role: 'admin' | 'user' | 'agent' | 'developer' | 'landlord';
-  name: string;
-  joinedDate: string;
-  bio?: string;
-  phone?: string;
-  savedPropertyIds?: string[];
-}
-
-// Fix: Added exported Inquiry interface to resolve missing member errors in App.tsx and AdminDashboard.tsx
-export interface Inquiry {
-  id: string;
-  name: string;
-  email: string;
-  message: string;
-  timestamp: string;
-}
 
 interface Migration {
   version: number;
@@ -50,33 +29,73 @@ class VirtualPostgres {
     const migrations = this.getMigrations();
     
     if (!migrations.find(m => m.version === 1)) {
-      console.log('Running Migration v1: DB Init...');
+      console.log('Running Migration v1: Super Admin Init...');
+      
       const admin: User = {
         id: 'usr_admin_001',
         email: 'admin@nugabest.com',
         password: 'admin12345',
         role: 'admin',
-        name: 'Nuga Executive',
+        name: 'Nuga Executive CEO',
         joinedDate: new Date().toISOString(),
-        savedPropertyIds: []
+        savedPropertyIds: [],
+        status: 'active',
+        verified: true,
+        kycStatus: 'verified',
+        subscriptionPlan: 'enterprise'
+      };
+
+      const demoAgent: User = {
+        id: 'usr_agent_001',
+        email: 'agent@nugabest.com',
+        password: 'password123',
+        role: 'agent',
+        name: 'John Realtor',
+        joinedDate: new Date().toISOString(),
+        savedPropertyIds: [],
+        status: 'active',
+        verified: true,
+        kycStatus: 'pending',
+        subscriptionPlan: 'pro'
       };
       
-      this.saveTable('users', [admin]);
+      this.saveTable('users', [admin, demoAgent]);
       
-      // Initialize properties with owner assignment
       const propsWithOwners = MOCK_PROPERTIES.map(p => ({
         ...p,
-        ownerId: 'usr_admin_001',
-        stats: { views: Math.floor(Math.random() * 1000), saves: Math.floor(Math.random() * 100), inquiries: Math.floor(Math.random() * 50) }
+        ownerId: p.id.startsWith('sale') ? 'usr_admin_001' : 'usr_agent_001',
+        status: 'Approved' as const,
+        stats: { 
+          views: Math.floor(Math.random() * 5000), 
+          saves: Math.floor(Math.random() * 500), 
+          inquiries: Math.floor(Math.random() * 150) 
+        }
       }));
       this.saveTable('properties', propsWithOwners);
       
-      this.saveTable('inquiries', []);
+      this.saveTable('inquiries', [
+        { id: 'inq_1', name: 'Alice Smith', email: 'alice@example.com', message: 'Interested in the Ikoyi penthouse.', timestamp: new Date().toLocaleString() }
+      ]);
       this.saveTable('appointments', []);
       this.saveTable('messages', []);
       this.saveTable('offers', []);
       
-      this.recordMigration(1, 'Initial Schema Setup');
+      this.saveTable('transactions', [
+        { id: 'tx_1', userId: 'usr_agent_001', amount: 25000, currency: '₦', type: 'Subscription', status: 'Completed', timestamp: new Date().toISOString(), description: 'Pro Plan Monthly' },
+        { id: 'tx_2', userId: 'usr_agent_001', amount: 5000, currency: '₦', type: 'Listing Boost', status: 'Completed', timestamp: new Date().toISOString(), description: 'Boost: Banana Island Mansion' }
+      ]);
+
+      const initialSettings: SystemSettings = {
+        platformName: 'Nuga Best Properties',
+        logoUrl: '',
+        aiEngineEnabled: true,
+        maintenanceMode: false,
+        globalCurrency: '₦',
+        commissionRate: 5.0
+      };
+      this.saveTable('system_settings', [initialSettings]);
+      
+      this.recordMigration(1, 'Super Admin Schema Upgrade');
     }
   }
 
@@ -100,7 +119,7 @@ class VirtualPostgres {
     localStorage.setItem(`${DB_PREFIX}${name}`, JSON.stringify(data));
   }
 
-  // ASYNC API METHODS
+  // USER MANAGEMENT
   public async queryUsers(): Promise<User[]> {
     return this.getTable<User>('users');
   }
@@ -119,8 +138,50 @@ class VirtualPostgres {
     this.saveTable('users', [...users, user]);
   }
 
+  // PROPERTY MANAGEMENT
   public async queryProperties(): Promise<Property[]> {
     return this.getTable<Property>('properties');
+  }
+
+  public async upsertProperty(property: Property): Promise<void> {
+    const props = this.getTable<Property>('properties');
+    const idx = props.findIndex(p => p.id === property.id);
+    if (idx > -1) {
+      props[idx] = property;
+      this.saveTable('properties', props);
+    } else {
+      this.saveTable('properties', [property, ...props]);
+    }
+  }
+
+  public async deleteProperty(id: string): Promise<void> {
+    const props = this.getTable<Property>('properties').filter(p => p.id !== id);
+    this.saveTable('properties', props);
+  }
+
+  // TRANSACTIONS
+  public async queryTransactions(): Promise<Transaction[]> {
+    return this.getTable<Transaction>('transactions');
+  }
+
+  // SETTINGS
+  public async querySettings(): Promise<SystemSettings> {
+    const settings = this.getTable<SystemSettings>('system_settings');
+    return settings[0];
+  }
+
+  public async updateSettings(settings: SystemSettings): Promise<void> {
+    this.saveTable('system_settings', [settings]);
+  }
+
+  // OTHER MODULES
+  public async queryInquiries(): Promise<Inquiry[]> {
+    return this.getTable<Inquiry>('inquiries');
+  }
+
+  public async createInquiry(inquiry: Inquiry): Promise<void> {
+    const inqs = this.getTable<Inquiry>('inquiries');
+    this.saveTable('inquiries', [inquiry, ...inqs]);
   }
 
   public async querySavedProperties(userId: string): Promise<Property[]> {
@@ -149,54 +210,12 @@ class VirtualPostgres {
     return this.getTable<Appointment>('appointments').filter(a => a.userId === userId || a.agentId === userId);
   }
 
-  public async createAppointment(apt: Appointment): Promise<void> {
-    const apts = this.getTable<Appointment>('appointments');
-    this.saveTable('appointments', [...apts, apt]);
-  }
-
   public async queryMessages(userId: string): Promise<ChatMessage[]> {
     return this.getTable<ChatMessage>('messages').filter(m => m.senderId === userId || m.receiverId === userId);
   }
 
-  public async sendMessage(msg: ChatMessage): Promise<void> {
-    const msgs = this.getTable<ChatMessage>('messages');
-    this.saveTable('messages', [...msgs, msg]);
-  }
-
   public async queryOffers(userId: string): Promise<Offer[]> {
     return this.getTable<Offer>('offers').filter(o => o.buyerId === userId || o.sellerId === userId);
-  }
-
-  public async createOffer(offer: Offer): Promise<void> {
-    const offers = this.getTable<Offer>('offers');
-    this.saveTable('offers', [...offers, offer]);
-  }
-
-  public async upsertProperty(property: Property): Promise<void> {
-    const props = this.getTable<Property>('properties');
-    const idx = props.findIndex(p => p.id === property.id);
-    if (idx > -1) {
-      props[idx] = property;
-      this.saveTable('properties', props);
-    } else {
-      this.saveTable('properties', [property, ...props]);
-    }
-  }
-
-  public async deleteProperty(id: string): Promise<void> {
-    const props = this.getTable<Property>('properties').filter(p => p.id !== id);
-    this.saveTable('properties', props);
-  }
-
-  // Fix: Added queryInquiries method to resolve missing property error in AdminDashboard.tsx
-  public async queryInquiries(): Promise<Inquiry[]> {
-    return this.getTable<Inquiry>('inquiries');
-  }
-
-  // Fix: Updated createInquiry to use the Inquiry interface for better type safety
-  public async createInquiry(inquiry: Inquiry): Promise<void> {
-    const inqs = this.getTable<Inquiry>('inquiries');
-    this.saveTable('inquiries', [inquiry, ...inqs]);
   }
 }
 

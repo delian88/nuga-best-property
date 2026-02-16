@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { User } from '../services/dbService';
+// Corrected import: User type should be imported from types.ts
+import { User } from '../types';
 
 export type ViewType = 'home' | 'for-sale' | 'for-rent' | 'short-let' | 'companies' | 'resources' | 'contact' | 'admin' | 'dashboard';
 

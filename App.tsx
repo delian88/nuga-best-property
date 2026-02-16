@@ -7,8 +7,9 @@ import AIChatBot from './components/AIChatBot';
 import Auth from './components/Auth';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
-import { db, User, Inquiry } from './services/dbService';
-import { Property } from './types';
+// Corrected import: Inquiry is a type and should be imported from types.ts
+import { db } from './services/dbService';
+import { Property, User, Inquiry } from './types';
 
 const Toast: React.FC<{ message: string; subMessage: string; onClose: () => void }> = ({ message, subMessage, onClose }) => {
   useEffect(() => {
@@ -253,7 +254,7 @@ const App: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 reveal">
         <div className="text-center mb-16">
           <span className="text-emerald-600 font-black text-sm tracking-[0.3em] uppercase mb-4 block">Hand-Picked Assets</span>
-          <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-6 shining-text uppercase tracking-tight">Recent Selections</h2>
+          <h2 className="text-4xl sm:text-5 font-black text-gray-900 font-serif mb-6 shining-text uppercase tracking-tight">Recent Selections</h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed italic">Curating the finest verified high-end real estate opportunities in the Nigerian market.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -407,7 +408,7 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (currentView === 'admin') return <AdminDashboard />;
+    if (currentView === 'admin' && currentUser?.role === 'admin') return <AdminDashboard />;
     if (currentView === 'dashboard' && currentUser) return <UserDashboard user={currentUser} onLogout={() => { setCurrentUser(null); setCurrentView('home'); }} />;
     
     switch(currentView) {
@@ -436,7 +437,13 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       <Header 
-        onNavigate={(v) => setCurrentView(v === 'home' ? 'home' : v as any)} 
+        onNavigate={(v) => {
+          if (v === 'admin' && currentUser?.role !== 'admin') {
+            setShowAuth(true);
+            return;
+          }
+          setCurrentView(v === 'home' ? 'home' : v as any);
+        }} 
         currentView={currentView as any} 
         user={currentUser}
         onLoginClick={() => setShowAuth(true)}
@@ -444,7 +451,7 @@ const App: React.FC = () => {
       />
       
       {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
-      {showAuth && <Auth onClose={() => setShowAuth(false)} onAuthSuccess={(u) => { setCurrentUser(u); setShowAuth(false); setCurrentView('dashboard'); }} />}
+      {showAuth && <Auth onClose={() => setShowAuth(false)} onAuthSuccess={(u) => { setCurrentUser(u); setShowAuth(false); setCurrentView(u.role === 'admin' ? 'admin' : 'dashboard'); }} />}
       
       <main className="flex-grow">{renderContent()}</main>
       
