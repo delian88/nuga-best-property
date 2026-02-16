@@ -2,8 +2,8 @@
 import { Property, Appointment, ChatMessage, Offer, User, Inquiry, Transaction, SystemSettings } from '../types';
 import { MOCK_PROPERTIES } from '../constants';
 
-const DB_PREFIX = 'nuga_postgres_';
-const MIGRATION_KEY = 'nuga_migrations';
+const DB_PREFIX = 'nuga_v_pg_';
+const MIGRATION_KEY = 'nuga_v_pg_migrations';
 
 interface Migration {
   version: number;
@@ -28,15 +28,16 @@ class VirtualPostgres {
   private async init() {
     const migrations = this.getMigrations();
     
+    // Migration v1: Foundation
     if (!migrations.find(m => m.version === 1)) {
-      console.log('Running Migration v1: Super Admin Init...');
+      console.log('PG MIGRATION: V1 Running...');
       
       const admin: User = {
         id: 'usr_admin_001',
         email: 'admin@nugabest.com',
         password: 'admin12345',
         role: 'admin',
-        name: 'Nuga Executive CEO',
+        name: 'Executive Super Admin',
         joinedDate: new Date().toISOString(),
         savedPropertyIds: [],
         status: 'active',
@@ -45,25 +46,11 @@ class VirtualPostgres {
         subscriptionPlan: 'enterprise'
       };
 
-      const demoAgent: User = {
-        id: 'usr_agent_001',
-        email: 'agent@nugabest.com',
-        password: 'password123',
-        role: 'agent',
-        name: 'John Realtor',
-        joinedDate: new Date().toISOString(),
-        savedPropertyIds: [],
-        status: 'active',
-        verified: true,
-        kycStatus: 'pending',
-        subscriptionPlan: 'pro'
-      };
-      
-      this.saveTable('users', [admin, demoAgent]);
+      this.saveTable('users', [admin]);
       
       const propsWithOwners = MOCK_PROPERTIES.map(p => ({
         ...p,
-        ownerId: p.id.startsWith('sale') ? 'usr_admin_001' : 'usr_agent_001',
+        ownerId: 'usr_admin_001',
         status: 'Approved' as const,
         stats: { 
           views: Math.floor(Math.random() * 5000), 
@@ -76,13 +63,10 @@ class VirtualPostgres {
       this.saveTable('inquiries', [
         { id: 'inq_1', name: 'Alice Smith', email: 'alice@example.com', message: 'Interested in the Ikoyi penthouse.', timestamp: new Date().toLocaleString() }
       ]);
-      this.saveTable('appointments', []);
-      this.saveTable('messages', []);
-      this.saveTable('offers', []);
       
       this.saveTable('transactions', [
-        { id: 'tx_1', userId: 'usr_agent_001', amount: 25000, currency: '₦', type: 'Subscription', status: 'Completed', timestamp: new Date().toISOString(), description: 'Pro Plan Monthly' },
-        { id: 'tx_2', userId: 'usr_agent_001', amount: 5000, currency: '₦', type: 'Listing Boost', status: 'Completed', timestamp: new Date().toISOString(), description: 'Boost: Banana Island Mansion' }
+        { id: 'tx_1', userId: 'usr_admin_001', amount: 500000, currency: '₦', type: 'Commission', status: 'Completed', timestamp: new Date().toISOString(), description: 'Ikoyi Penthouse Sale Commission' },
+        { id: 'tx_2', userId: 'usr_admin_001', amount: 120000, currency: '₦', type: 'Subscription', status: 'Completed', timestamp: new Date().toISOString(), description: 'Agent Enterprise Yearly' }
       ]);
 
       const initialSettings: SystemSettings = {
@@ -95,8 +79,13 @@ class VirtualPostgres {
       };
       this.saveTable('system_settings', [initialSettings]);
       
-      this.recordMigration(1, 'Super Admin Schema Upgrade');
+      this.recordMigration(1, 'Initial Super Admin Schema');
     }
+
+    // Ensure empty tables exist
+    if (!localStorage.getItem(`${DB_PREFIX}appointments`)) this.saveTable('appointments', []);
+    if (!localStorage.getItem(`${DB_PREFIX}messages`)) this.saveTable('messages', []);
+    if (!localStorage.getItem(`${DB_PREFIX}offers`)) this.saveTable('offers', []);
   }
 
   private getMigrations(): Migration[] {
@@ -112,14 +101,24 @@ class VirtualPostgres {
 
   private getTable<T>(name: string): T[] {
     const data = localStorage.getItem(`${DB_PREFIX}${name}`);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.error(`DB_ERROR: Failed to parse table ${name}`, e);
+      return [];
+    }
   }
 
   private saveTable<T>(name: string, data: T[]) {
-    localStorage.setItem(`${DB_PREFIX}${name}`, JSON.stringify(data));
+    try {
+      localStorage.setItem(`${DB_PREFIX}${name}`, JSON.stringify(data));
+    } catch (e) {
+      console.error(`DB_ERROR: Failed to save table ${name}`, e);
+    }
   }
 
-  // USER MANAGEMENT
+  // USER OPERATIONS
   public async queryUsers(): Promise<User[]> {
     return this.getTable<User>('users');
   }
@@ -138,7 +137,7 @@ class VirtualPostgres {
     this.saveTable('users', [...users, user]);
   }
 
-  // PROPERTY MANAGEMENT
+  // PROPERTY OPERATIONS
   public async queryProperties(): Promise<Property[]> {
     return this.getTable<Property>('properties');
   }
@@ -159,12 +158,12 @@ class VirtualPostgres {
     this.saveTable('properties', props);
   }
 
-  // TRANSACTIONS
+  // FINANCIALS
   public async queryTransactions(): Promise<Transaction[]> {
     return this.getTable<Transaction>('transactions');
   }
 
-  // SETTINGS
+  // SYSTEM
   public async querySettings(): Promise<SystemSettings> {
     const settings = this.getTable<SystemSettings>('system_settings');
     return settings[0];
@@ -174,7 +173,7 @@ class VirtualPostgres {
     this.saveTable('system_settings', [settings]);
   }
 
-  // OTHER MODULES
+  // APP LOGIC
   public async queryInquiries(): Promise<Inquiry[]> {
     return this.getTable<Inquiry>('inquiries');
   }
@@ -185,8 +184,7 @@ class VirtualPostgres {
   }
 
   public async querySavedProperties(userId: string): Promise<Property[]> {
-    const users = this.getTable<User>('users');
-    const user = users.find(u => u.id === userId);
+    const user = this.getTable<User>('users').find(u => u.id === userId);
     if (!user || !user.savedPropertyIds) return [];
     const props = this.getTable<Property>('properties');
     return props.filter(p => user.savedPropertyIds!.includes(p.id));

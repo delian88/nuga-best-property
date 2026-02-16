@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-// Corrected import: User type should be imported from types.ts, db from dbService
 import { db } from '../services/dbService';
 import { User } from '../types';
 
@@ -15,48 +14,52 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fixed: handleSubmit must be async to use dbService methods which are asynchronous
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     try {
-      // Fixed: queryUsers is the correct async method to fetch users from dbService
       const allUsers = await db.queryUsers();
 
       if (isLogin) {
-        // Fixed: Use the fetched users array to check credentials
         const user = allUsers.find(u => u.email === email && u.password === password);
         if (user) {
-          onAuthSuccess(user);
+          if (user.status === 'suspended') {
+            setError('Your account has been suspended by system administration.');
+          } else {
+            onAuthSuccess(user);
+          }
         } else {
-          setError('Invalid credentials. For demo admin, use admin@nugabest.com / admin12345');
+          // Fixed: Removed demo credentials hint from public view
+          setError('Invalid email or password. Please verify your credentials.');
         }
       } else {
-        // Fixed: Check for existing user in the fetched users array
         if (allUsers.some(u => u.email === email)) {
-          setError('User already exists');
+          setError('An account with this email already exists.');
+          setIsLoading(false);
           return;
         }
         const newUser: User = {
-          id: Math.random().toString(36).substr(2, 9),
+          id: `usr_${Math.random().toString(36).substr(2, 9)}`,
           email,
           password,
           name,
           role: 'user',
-          // Fixed: joinedDate is a required property of the User interface
           joinedDate: new Date().toISOString(),
           status: 'active',
           verified: false,
           kycStatus: 'unsubmitted'
         };
-        // Fixed: createUser is the correct async method to add a user to dbService
         await db.createUser(newUser);
         onAuthSuccess(newUser);
       }
     } catch (err) {
-      setError('An error occurred during authentication. Please try again.');
+      setError('A secure connection error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,9 +73,9 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
         <div className="p-10 pt-16">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tighter shining-text inline-block">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
+              {isLogin ? 'Secure Gateway' : 'Identity Creation'}
             </h2>
-            <p className="text-gray-500 text-sm mt-2 font-medium">Join the elite world of Nuga Best Properties</p>
+            <p className="text-gray-500 text-sm mt-2 font-medium">Access the elite world of Nuga Best Properties</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -85,23 +88,23 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-emerald-500 transition-all font-semibold"
-                  placeholder="Enter your name"
+                  placeholder="Official legal name"
                 />
               </div>
             )}
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Email Address</label>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Corporate Email</label>
               <input 
                 required 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-emerald-500 transition-all font-semibold"
-                placeholder="email@example.com"
+                placeholder="name@provider.com"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Access Key</label>
               <input 
                 required 
                 type="password" 
@@ -112,10 +115,17 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
               />
             </div>
 
-            {error && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest text-center">{error}</p>}
+            {error && (
+              <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                <p className="text-red-600 text-[10px] font-black uppercase tracking-widest text-center">{error}</p>
+              </div>
+            )}
 
-            <button className="w-full bg-emerald-600 text-white font-black py-5 rounded-2xl uppercase tracking-[0.3em] text-xs shadow-xl shadow-emerald-800/20 hover:bg-emerald-700 transition-all active:scale-95">
-              {isLogin ? 'Sign In' : 'Create Account'}
+            <button 
+              disabled={isLoading}
+              className="w-full bg-emerald-600 text-white font-black py-5 rounded-2xl uppercase tracking-[0.3em] text-xs shadow-xl shadow-emerald-800/20 hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50"
+            >
+              {isLoading ? 'Processing...' : (isLogin ? 'Authenticate' : 'Finalize Account')}
             </button>
           </form>
 
@@ -124,7 +134,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
               onClick={() => { setIsLogin(!isLogin); setError(''); }}
               className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-emerald-600 transition-colors"
             >
-              {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
+              {isLogin ? "No identity recorded? Register" : "Existing Identity? Authenticate"}
             </button>
           </div>
         </div>

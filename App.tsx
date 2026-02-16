@@ -7,7 +7,6 @@ import AIChatBot from './components/AIChatBot';
 import Auth from './components/Auth';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
-// Corrected import: Inquiry is a type and should be imported from types.ts
 import { db } from './services/dbService';
 import { Property, User, Inquiry } from './types';
 
@@ -141,6 +140,34 @@ const App: React.FC = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
 
+  // Persistent Login logic
+  useEffect(() => {
+    const savedUser = localStorage.getItem('nuga_current_session');
+    if (savedUser) {
+      try {
+        const user = JSON.parse(savedUser);
+        setCurrentUser(user);
+        // If they were on admin or dashboard, keep them there
+        if (user.role === 'admin') setCurrentView('admin');
+      } catch (e) {
+        localStorage.removeItem('nuga_current_session');
+      }
+    }
+  }, []);
+
+  const handleAuthSuccess = (user: User) => {
+    setCurrentUser(user);
+    localStorage.setItem('nuga_current_session', JSON.stringify(user));
+    setShowAuth(false);
+    setCurrentView(user.role === 'admin' ? 'admin' : 'dashboard');
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('nuga_current_session');
+    setCurrentView('home');
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await db.queryProperties();
@@ -163,7 +190,7 @@ const App: React.FC = () => {
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     return () => observer.disconnect();
-  }, [currentView, locationFilter, categoryFilter, allProperties]);
+  }, [currentView, allProperties]);
 
   const handleHeroSearch = (type: string, location: string, category: string) => {
     setLocationFilter(location || null);
@@ -190,7 +217,7 @@ const App: React.FC = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const newInquiry: Inquiry = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: `inq_${Math.random().toString(36).substr(2, 9)}`,
       name: formData.get('name') as string,
       email: formData.get('email') as string,
       message: formData.get('message') as string,
@@ -228,7 +255,7 @@ const App: React.FC = () => {
     <>
       <Hero onSearch={handleHeroSearch} />
       
-      {/* 1. Trust Statistics Banner */}
+      {/* Trust Statistics Banner */}
       <section className="relative z-20 -mt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
         <div className="bg-white rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-8 sm:p-12 border border-emerald-50 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
@@ -250,11 +277,11 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. Featured Listings */}
+      {/* Featured Listings */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 reveal">
         <div className="text-center mb-16">
           <span className="text-emerald-600 font-black text-sm tracking-[0.3em] uppercase mb-4 block">Hand-Picked Assets</span>
-          <h2 className="text-4xl sm:text-5 font-black text-gray-900 font-serif mb-6 shining-text uppercase tracking-tight">Recent Selections</h2>
+          <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-6 shining-text uppercase tracking-tight">Recent Selections</h2>
           <p className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed italic">Curating the finest verified high-end real estate opportunities in the Nigerian market.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -269,7 +296,7 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. Elite Neighborhood Grid */}
+      {/* Elite Neighborhood Grid */}
       <section className="bg-gray-50 py-24 reveal overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16">
@@ -299,7 +326,7 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. Strategic Excellence (Why Choose Us) */}
+      {/* Strategic Excellence */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 reveal">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="relative">
@@ -335,56 +362,35 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Partner Developer Marquee */}
+      {/* Partner Marquee */}
       <section className="bg-emerald-950 py-20 reveal border-y border-emerald-900/50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
            <p className="text-center text-emerald-400 font-black uppercase text-[10px] tracking-[0.4em]">Trusted by Industry Leading Developers</p>
         </div>
         <div className="relative flex overflow-x-hidden group">
           <div className="py-12 flex whitespace-nowrap animate-marquee">
-            {[
-              'DEV-A PROPERTIES', 'LUXE HOMES NIGERIA', 'PRIME ESTATES', 'URBAN CORP', 'GREEN DEVELOPERS', 
-              'ELITE LANDS', 'CITADEL HOMES', 'VINTAGE REALTORS', 'CRESTVIEW DEV', 'SKYLINE PROPERTIES'
-            ].map((brand, i) => (
-              <span 
-                key={i} 
-                className="mx-16 text-3xl font-black text-white/10 tracking-tighter grayscale transition-all duration-500 hover:text-emerald-400 hover:grayscale-0"
-              >
-                {brand}
-              </span>
-            ))}
-            {[
-              'DEV-A PROPERTIES', 'LUXE HOMES NIGERIA', 'PRIME ESTATES', 'URBAN CORP', 'GREEN DEVELOPERS', 
-              'ELITE LANDS', 'CITADEL HOMES', 'VINTAGE REALTORS', 'CRESTVIEW DEV', 'SKYLINE PROPERTIES'
-            ].map((brand, i) => (
-              <span 
-                key={i + 10} 
-                className="mx-16 text-3xl font-black text-white/10 tracking-tighter grayscale transition-all duration-500 hover:text-emerald-400 hover:grayscale-0"
-              >
-                {brand}
-              </span>
+            {['DEV-A PROPERTIES', 'LUXE HOMES NIGERIA', 'PRIME ESTATES', 'URBAN CORP', 'GREEN DEVELOPERS', 'ELITE LANDS', 'CITADEL HOMES'].map((brand, i) => (
+              <span key={i} className="mx-16 text-3xl font-black text-white/10 tracking-tighter hover:text-emerald-400 transition-all">{brand}</span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 6. Executive CTA */}
+      {/* Executive CTA */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24 reveal text-center">
         <div className="bg-white p-12 sm:p-20 rounded-[4rem] shadow-2xl border border-emerald-50 relative overflow-hidden">
            <div className="relative z-10">
               <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-serif mb-8 leading-tight shining-text uppercase tracking-tight">Ready to Secure Your Asset?</h2>
-              <p className="text-gray-500 text-lg mb-12 max-w-2xl mx-auto font-medium">Whether you're looking to acquire a primary residence or expand your commercial portfolio, Nuga Best Properties is your gateway to excellence.</p>
+              <p className="text-gray-500 text-lg mb-12 max-w-2xl mx-auto font-medium">Gateway to Nigeria's finest real estate collections.</p>
               <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                 <button onClick={() => setCurrentView('contact')} className="bg-emerald-600 text-white px-12 py-6 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all">
-                    Request a Consultation
+                 <button onClick={() => setCurrentView('contact')} className="bg-emerald-600 text-white px-12 py-6 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl hover:bg-emerald-700 transition-all">
+                    Consult an Expert
                  </button>
-                 <button onClick={() => setCurrentView('for-sale')} className="border-2 border-emerald-600 text-emerald-600 px-12 py-6 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-600 hover:text-white active:scale-95 transition-all">
-                    View Verified Listings
+                 <button onClick={() => setCurrentView('for-sale')} className="border-2 border-emerald-600 text-emerald-600 px-12 py-6 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-600 hover:text-white transition-all">
+                    Browse All Listings
                  </button>
               </div>
            </div>
-           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full -mr-32 -mt-32 blur-[80px]"></div>
-           <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-50 rounded-full -ml-32 -mb-32 blur-[80px]"></div>
         </div>
       </section>
     </>
@@ -394,7 +400,7 @@ const App: React.FC = () => {
     const props = getFilteredProperties(typeFilter);
     return (
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="mb-12 border-b border-gray-100 pb-10">
+        <div className="mb-12 border-b border-gray-100 pb-10 text-center sm:text-left">
           <h1 className="text-4xl font-black text-gray-900 font-serif mb-4 shining-text uppercase tracking-tight">{title}</h1>
           <p className="text-gray-500 text-lg leading-relaxed">{desc}</p>
         </div>
@@ -409,7 +415,7 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     if (currentView === 'admin' && currentUser?.role === 'admin') return <AdminDashboard />;
-    if (currentView === 'dashboard' && currentUser) return <UserDashboard user={currentUser} onLogout={() => { setCurrentUser(null); setCurrentView('home'); }} />;
+    if (currentView === 'dashboard' && currentUser) return <UserDashboard user={currentUser} onLogout={handleLogout} />;
     
     switch(currentView) {
       case 'for-sale': return renderPropertyGrid("Assets For Sale", "Verified high-yield investments.", "For Sale");
@@ -418,13 +424,13 @@ const App: React.FC = () => {
       case 'contact': return (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="bg-white p-12 md:p-20 rounded-[3rem] shadow-2xl border border-gray-100 max-w-4xl mx-auto">
-             <h2 className="text-3xl font-black text-gray-900 mb-10 text-center uppercase tracking-tighter shining-text">Get In Touch</h2>
+             <h2 className="text-3xl font-black text-gray-900 mb-10 text-center uppercase tracking-tighter shining-text">Secure Inquiry</h2>
              <form onSubmit={handleContactSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-               <input required name="name" type="text" placeholder="Full Name" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 focus:ring-2 focus:ring-emerald-500 transition-all font-semibold" />
-               <input required name="email" type="email" placeholder="Email Address" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 focus:ring-2 focus:ring-emerald-500 transition-all font-semibold" />
-               <textarea required name="message" rows={6} placeholder="How can we assist?" className="md:col-span-2 w-full bg-gray-50 border-0 rounded-[2rem] px-6 py-6 focus:ring-2 focus:ring-emerald-500 transition-all font-semibold"></textarea>
-               <button disabled={isSubmitting} className="md:col-span-2 w-full bg-emerald-600 text-white font-black py-6 rounded-2xl uppercase tracking-[0.3em] text-xs transition-all flex items-center justify-center space-x-3 shadow-xl shadow-emerald-800/20 active:scale-95">
-                 {isSubmitting ? "Transmitting..." : "Send Inquiry"}
+               <input required name="name" type="text" placeholder="Full Name" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 focus:ring-2 focus:ring-emerald-500 font-semibold" />
+               <input required name="email" type="email" placeholder="Corporate Email" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 focus:ring-2 focus:ring-emerald-500 font-semibold" />
+               <textarea required name="message" rows={6} placeholder="Detailed requirement briefing..." className="md:col-span-2 w-full bg-gray-50 border-0 rounded-[2rem] px-6 py-6 focus:ring-2 focus:ring-emerald-500 font-semibold"></textarea>
+               <button disabled={isSubmitting} className="md:col-span-2 w-full bg-emerald-600 text-white font-black py-6 rounded-2xl uppercase tracking-widest text-xs transition-all shadow-xl hover:bg-emerald-700">
+                 {isSubmitting ? "Transmitting..." : "Send Secure Inquiry"}
                </button>
              </form>
           </div>
@@ -438,20 +444,20 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       <Header 
         onNavigate={(v) => {
-          if (v === 'admin' && currentUser?.role !== 'admin') {
+          if ((v === 'admin' || v === 'dashboard') && !currentUser) {
             setShowAuth(true);
             return;
           }
-          setCurrentView(v === 'home' ? 'home' : v as any);
+          setCurrentView(v as any);
         }} 
         currentView={currentView as any} 
         user={currentUser}
         onLoginClick={() => setShowAuth(true)}
-        onLogout={() => { setCurrentUser(null); setCurrentView('home'); }}
+        onLogout={handleLogout}
       />
       
       {toast && <Toast message={toast.message} subMessage={toast.subMessage} onClose={() => setToast(null)} />}
-      {showAuth && <Auth onClose={() => setShowAuth(false)} onAuthSuccess={(u) => { setCurrentUser(u); setShowAuth(false); setCurrentView(u.role === 'admin' ? 'admin' : 'dashboard'); }} />}
+      {showAuth && <Auth onClose={() => setShowAuth(false)} onAuthSuccess={handleAuthSuccess} />}
       
       <main className="flex-grow">{renderContent()}</main>
       
@@ -459,10 +465,10 @@ const App: React.FC = () => {
 
       <footer className="bg-gray-950 text-gray-400 py-24 border-t border-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20 text-center sm:text-left">
               <div className="md:col-span-1">
                  <span className="text-2xl font-black text-white tracking-tighter block mb-6 uppercase">NUGA BEST <span className="text-emerald-500">PROPERTIES</span></span>
-                 <p className="text-sm italic leading-relaxed">Finding you a place to call home is our greatest achievement. Established to set the standard in elite real estate.</p>
+                 <p className="text-sm italic leading-relaxed">Setting the standard in elite real estate management across Nigeria.</p>
               </div>
               <div>
                  <h4 className="text-white font-black uppercase text-xs tracking-widest mb-8">Navigation</h4>
@@ -474,25 +480,15 @@ const App: React.FC = () => {
                  </ul>
               </div>
               <div>
-                 <h4 className="text-white font-black uppercase text-xs tracking-widest mb-8">Legal & Privacy</h4>
-                 <ul className="space-y-4 text-xs font-bold uppercase tracking-widest">
-                    <li><a href="#" className="hover:text-emerald-500 transition-colors">Privacy Policy</a></li>
-                    <li><a href="#" className="hover:text-emerald-500 transition-colors">Terms of Service</a></li>
-                    <li><a href="#" className="hover:text-emerald-500 transition-colors">Disclaimer</a></li>
-                    <li><a href="#" className="hover:text-emerald-500 transition-colors">Cookie Settings</a></li>
-                 </ul>
-              </div>
-              <div>
                  <h4 className="text-white font-black uppercase text-xs tracking-widest mb-8">Executive Office</h4>
                  <p className="text-xs font-bold uppercase tracking-widest leading-loose">
-                    4th Floor, Heritage Mall,<br/>
                     Victoria Island, Lagos<br/>
                     +234 (0) 800 NUGA BEST
                  </p>
               </div>
            </div>
            <div className="pt-12 border-t border-gray-900 text-center">
-              <p className="text-[10px] font-black tracking-[0.3em] text-gray-600 uppercase">&copy; {new Date().getFullYear()} Nuga Best Properties. All Rights Reserved.</p>
+              <p className="text-[10px] font-black tracking-[0.3em] text-gray-600 uppercase">&copy; {new Date().getFullYear()} Nuga Best Properties. Global Elite Standard.</p>
            </div>
         </div>
       </footer>
