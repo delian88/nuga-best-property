@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { User } from '../services/dbService';
 
-export type ViewType = 'home' | 'for-sale' | 'for-rent' | 'short-let' | 'companies' | 'resources' | 'contact' | 'admin';
+export type ViewType = 'home' | 'for-sale' | 'for-rent' | 'short-let' | 'companies' | 'resources' | 'contact' | 'admin' | 'dashboard';
 
 interface HeaderProps {
   onNavigate: (view: ViewType) => void;
-  currentView: ViewType | 'admin';
+  currentView: ViewType;
   user: User | null;
   onLoginClick: () => void;
   onLogout: () => void;
@@ -57,7 +57,17 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView, user, onLoginC
                   currentView === 'admin' ? 'text-emerald-600' : 'text-fuchsia-700 hover:text-emerald-600'
                 }`}
               >
-                Dashboard
+                Admin Command
+              </button>
+            )}
+            {user && (
+              <button
+                onClick={() => handleNav('dashboard')}
+                className={`px-3 py-2 text-sm font-black transition-all relative uppercase tracking-widest ${
+                  currentView === 'dashboard' ? 'text-emerald-600' : 'text-emerald-700 hover:text-emerald-600'
+                }`}
+              >
+                My Dashboard
               </button>
             )}
           </nav>
@@ -98,8 +108,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentView, user, onLoginC
           {navLinks.map((link) => (
             <button key={link.view} onClick={() => handleNav(link.view)} className="block w-full text-left px-4 py-3 text-base font-bold rounded-xl">{link.label}</button>
           ))}
-          {user?.role === 'admin' && (
-            <button onClick={() => handleNav('admin')} className="block w-full text-left px-4 py-3 text-base font-black text-fuchsia-700 uppercase">Dashboard</button>
+          {user && (
+            <button onClick={() => handleNav('dashboard')} className="block w-full text-left px-4 py-3 text-base font-black text-emerald-700 uppercase">My Dashboard</button>
           )}
           <div className="pt-4">
             {user ? (
