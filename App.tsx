@@ -427,7 +427,7 @@ const App: React.FC = () => {
              <h2 className="text-3xl font-black text-gray-900 mb-10 text-center uppercase tracking-tighter shining-text">Secure Inquiry</h2>
              <form onSubmit={handleContactSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                <input required name="name" type="text" placeholder="Full Name" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 focus:ring-2 focus:ring-emerald-500 font-semibold" />
-               <input required name="email" type="email" placeholder="Corporate Email" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 focus:ring-2 focus:ring-emerald-500 font-semibold" />
+               <input required name="email" type="email" placeholder="Email Address" className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 focus:ring-2 focus:ring-emerald-500 font-semibold" />
                <textarea required name="message" rows={6} placeholder="Detailed requirement briefing..." className="md:col-span-2 w-full bg-gray-50 border-0 rounded-[2rem] px-6 py-6 focus:ring-2 focus:ring-emerald-500 font-semibold"></textarea>
                <button disabled={isSubmitting} className="md:col-span-2 w-full bg-emerald-600 text-white font-black py-6 rounded-2xl uppercase tracking-widest text-xs transition-all shadow-xl hover:bg-emerald-700">
                  {isSubmitting ? "Transmitting..." : "Send Secure Inquiry"}

@@ -33,7 +33,6 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
             onAuthSuccess(user);
           }
         } else {
-          // Fixed: Removed demo credentials hint from public view
           setError('Invalid email or password. Please verify your credentials.');
         }
       } else {
@@ -93,7 +92,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
               </div>
             )}
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Corporate Email</label>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Email</label>
               <input 
                 required 
                 type="email" 
@@ -104,7 +103,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Access Key</label>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
               <input 
                 required 
                 type="password" 
