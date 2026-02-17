@@ -72,7 +72,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
         <div className="p-10 pt-16">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tighter shining-text inline-block">
-              {isLogin ? 'Sign in' : 'Identity Creation'}
+              {isLogin ? 'Sign in' : 'Create Account'}
             </h2>
             <p className="text-gray-500 text-sm mt-2 font-medium">Access the elite world of Nuga Best Properties</p>
           </div>
@@ -124,7 +124,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, onClose }) => {
               disabled={isLoading}
               className="w-full bg-emerald-600 text-white font-black py-5 rounded-2xl uppercase tracking-[0.3em] text-xs shadow-xl shadow-emerald-800/20 hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50"
             >
-              {isLoading ? 'Processing...' : (isLogin ? 'Sign in' : 'Finalize Account')}
+              {isLoading ? 'Processing...' : (isLogin ? 'Sign in' : 'Create account')}
             </button>
           </form>
 
