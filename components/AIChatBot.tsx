@@ -75,7 +75,7 @@ const AIChatBot: React.FC = () => {
       {isOpen ? (
         <div className="bg-white rounded-[2rem] shadow-2xl w-[calc(100vw-2rem)] sm:w-[420px] flex flex-col border border-emerald-100 overflow-hidden animate__animated animate__fadeInUp animate__faster max-h-[85vh]">
           {/* Header */}
-          <div className="bg-emerald-600 p-6 text-white flex justify-between items-center shrink-0 shadow-lg">
+          <div className="bg-emerald-600 p-6 text-white flex justify-between items-center shrink-0 shadow-lg border-b border-emerald-500/30">
             <div className="flex items-center">
               <div className="relative">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mr-4 shadow-inner">
@@ -87,14 +87,17 @@ const AIChatBot: React.FC = () => {
               </div>
               <div>
                 <span className="font-black text-sm uppercase tracking-[0.2em] block">Nuga Concierge</span>
-                <span className="text-[10px] text-emerald-100 font-bold uppercase tracking-widest opacity-80">Conversational Expert</span>
+                <span className="text-[10px] text-emerald-100 font-bold uppercase tracking-widest opacity-80">Online Expert</span>
               </div>
             </div>
+            
+            {/* Added prominent labeled close button */}
             <button 
               onClick={() => setIsOpen(false)} 
-              className="hover:bg-black/10 transition-colors p-2 rounded-xl"
+              className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 transition-all px-4 py-2 rounded-xl border border-white/20 active:scale-95 group"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="text-[10px] font-black uppercase tracking-widest">Close</span>
+              <svg className="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -179,7 +182,7 @@ const AIChatBot: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <p className="text-[9px] text-gray-300 text-center mt-4 font-bold uppercase tracking-[0.2em]">Nuga Best AI v2.1 • Multi-turn Enabled</p>
+            <p className="text-[9px] text-gray-300 text-center mt-4 font-bold uppercase tracking-[0.2em]">Nuga Best AI v2.2 • Multi-turn Enabled</p>
           </div>
         </div>
       ) : (
@@ -200,13 +203,4 @@ const AIChatBot: React.FC = () => {
           
           <div className="absolute right-full mr-6 top-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 transition-all duration-300 origin-right">
             <div className="bg-emerald-950 text-white px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl border border-emerald-800/50 whitespace-nowrap">
-              Expert Property Guidance <span className="text-emerald-400 ml-2">Online</span>
-            </div>
-          </div>
-        </button>
-      )}
-    </div>
-  );
-};
-
-export default AIChatBot;
+              Expert Property Guidance <span className="text-emerald-400 ml-2">
